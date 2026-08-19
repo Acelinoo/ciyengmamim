@@ -1,5 +1,3 @@
-"use client";
-
 import { ArrowRight } from "lucide-react";
 import Image from "next/image";
 
@@ -23,9 +21,8 @@ export function HeroSection() {
             src="/images/cireng-bowl.png"
             alt="Cireng Crispy"
             fill
-            sizes="(max-width: 768px) 160px, (max-width: 1200px) 280px, 320px"
+            sizes="(max-width: 640px) 160px, (max-width: 1024px) 256px, 304px"
             className="object-cover"
-            priority
           />
         </div>
       </div>
@@ -43,9 +40,8 @@ export function HeroSection() {
             src="/images/cireng-kuah.jpg"
             alt="Cireng Kuah Creamy"
             fill
-            sizes="(max-width: 768px) 180px, (max-width: 1200px) 300px, 340px"
+            sizes="(max-width: 640px) 176px, (max-width: 1024px) 288px, 336px"
             className="object-cover scale-110"
-            priority
           />
         </div>
       </div>
@@ -60,6 +56,7 @@ export function HeroSection() {
             src="/images/logo.png"
             alt="Logo Ciyeng Mamim"
             fill
+            sizes="(max-width: 768px) 80px, 96px"
             className="object-contain"
             priority
           />
@@ -77,15 +74,15 @@ export function HeroSection() {
         <div className="my-4">
           <h2 className="text-lg sm:text-2xl md:text-3xl font-black text-[#16253D] tracking-tight font-display max-w-2xl mx-auto leading-snug">
             Cireng Isi Premium Pertama dgn{" "}
-            <span className="text-[#7D5836] underline decoration-[#EAA623] decoration-wavy decoration-2">
+            <span className="text-[#5C4028] underline decoration-[#EAA623] decoration-wavy decoration-2">
               Creamy Ranch Sauce
             </span>
           </h2>
-          <p className="max-w-lg md:max-w-xl mx-auto text-center text-xs sm:text-base text-[#4B5E7A] font-medium mt-2 leading-relaxed px-2">
-            Pilihan menu: <strong className="text-[#D83A2E]">Ayam Rica</strong>,{" "}
+          <p className="max-w-lg md:max-w-xl mx-auto text-center text-xs sm:text-base text-[#2C3E5A] font-semibold mt-2 leading-relaxed px-2">
+            Pilihan menu: <strong className="text-[#B91C1C]">Ayam Rica</strong>,{" "}
             <strong className="text-[#16253D]">Sapi Teriyaki</strong>,{" "}
-            <strong className="text-[#877259]">Paru Rica</strong>,{" "}
-            <strong className="text-[#EAA623]">Pizza</strong>, dan{" "}
+            <strong className="text-[#5C4028]">Paru Rica</strong>,{" "}
+            <strong className="text-[#5C4028]">Pizza</strong>, dan{" "}
             <strong className="text-[#16253D]">Keju</strong>.
           </p>
         </div>
@@ -94,14 +91,16 @@ export function HeroSection() {
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3 md:gap-4 mt-6 mb-10 md:mb-14">
           <a
             href="#menu"
-            className="w-full sm:w-auto px-8 py-4 bg-[#16253D] hover:bg-[#1D2D44] text-white font-black text-sm md:text-base rounded-full flex items-center justify-center gap-2 active:scale-95 transition-all shadow-lg glow-navy border border-[#2C3E5A]"
+            aria-label="Pesan Menu Cireng Sekarang"
+            className="w-full sm:w-auto min-h-[48px] px-8 py-4 bg-[#16253D] hover:bg-[#1D2D44] text-white font-black text-sm md:text-base rounded-full flex items-center justify-center gap-2 active:scale-95 transition-all shadow-lg glow-navy border border-[#2C3E5A]"
           >
             <span>Pesan Menu Sekarang</span>
             <ArrowRight className="w-5 h-5" />
           </a>
           <a
             href="#paket"
-            className="w-full sm:w-auto px-7 py-4 bg-white border border-[#CFC8B8] text-[#16253D] font-extrabold text-sm md:text-base rounded-full flex items-center justify-center gap-2 hover:bg-[#EFECE3] transition-all shadow-2xs"
+            aria-label="Lihat Pilihan Paket Hemat Ciyeng Mamim"
+            className="w-full sm:w-auto min-h-[48px] px-7 py-4 bg-white border border-[#CFC8B8] text-[#16253D] font-extrabold text-sm md:text-base rounded-full flex items-center justify-center gap-2 hover:bg-[#EFECE3] transition-all shadow-2xs"
           >
             <span>Lihat Paket Hemat</span>
           </a>
@@ -118,7 +117,7 @@ export function HeroSection() {
               <span className="block font-black text-xs md:text-sm text-[#16253D] truncate">
                 Ayam Rica
               </span>
-              <span className="text-[11px] md:text-xs text-[#D83A2E] font-extrabold">
+              <span className="text-[11px] md:text-xs text-[#B91C1C] font-extrabold">
                 Ayam Suir Pedas Gurih
               </span>
             </div>
@@ -133,7 +132,7 @@ export function HeroSection() {
               <span className="block font-black text-xs md:text-sm text-[#16253D] truncate">
                 Sapi Teriyaki
               </span>
-              <span className="text-[11px] md:text-xs text-[#7D5836] font-extrabold">
+              <span className="text-[11px] md:text-xs text-[#5C4028] font-extrabold">
                 Daging Sapi Pedas Manis
               </span>
             </div>
@@ -163,7 +162,7 @@ export function HeroSection() {
               <span className="block font-black text-xs md:text-sm text-[#16253D] truncate">
                 Creamy Ranch
               </span>
-              <span className="text-[11px] md:text-xs text-[#877259] font-extrabold">
+              <span className="text-[11px] md:text-xs text-[#5C4028] font-extrabold">
                 Saus Khas Ciyeng
               </span>
             </div>

@@ -20,12 +20,12 @@ export function ProductCard({ product, onSelect }: ProductCardProps) {
             src={product.imageUrl}
             alt={product.name}
             fill
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 380px"
             className="object-cover group-hover:scale-105 transition-transform duration-300"
           />
           {!product.isAvailable && (
             <div className="absolute inset-0 bg-[#16253D]/75 backdrop-blur-xs flex items-center justify-center">
-              <span className="px-3.5 py-1.5 bg-[#D83A2E] text-white font-black text-xs uppercase tracking-wider rounded-full shadow-md">
+              <span className="px-3.5 py-1.5 bg-[#B91C1C] text-white font-black text-xs uppercase tracking-wider rounded-full shadow-md">
                 Habis Hari Ini
               </span>
             </div>
@@ -36,7 +36,7 @@ export function ProductCard({ product, onSelect }: ProductCardProps) {
         <h3 className="font-black text-base sm:text-lg text-[#16253D] mb-1.5 line-clamp-1 group-hover:text-[#1D2D44] transition-colors">
           {product.name}
         </h3>
-        <p className="text-xs sm:text-sm text-[#4B5E7A] line-clamp-2 leading-relaxed mb-4 font-normal">
+        <p className="text-xs sm:text-sm text-[#2C3E5A] line-clamp-2 leading-relaxed mb-4 font-medium">
           {product.description}
         </p>
       </div>
@@ -44,7 +44,7 @@ export function ProductCard({ product, onSelect }: ProductCardProps) {
       {/* Price & Add to Cart Trigger */}
       <div className="pt-3 border-t border-[#EFECE3] flex items-center justify-between gap-2">
         <div>
-          <span className="text-[10px] uppercase font-extrabold text-[#877259] block tracking-wider">
+          <span className="text-[10px] uppercase font-extrabold text-[#5C4028] block tracking-wider">
             Harga Satuan
           </span>
           <span className="text-base sm:text-lg font-black text-[#16253D]">
@@ -55,12 +55,12 @@ export function ProductCard({ product, onSelect }: ProductCardProps) {
         <button
           onClick={() => onSelect(product)}
           disabled={!product.isAvailable}
-          className={`flex items-center gap-1.5 px-4 py-2 rounded-full font-black text-xs sm:text-sm transition-all active:scale-95 ${
+          className={`flex items-center gap-1.5 px-4 py-2.5 min-h-[44px] min-w-[80px] justify-center rounded-full font-black text-xs sm:text-sm transition-all active:scale-95 ${
             product.isAvailable
               ? "bg-[#16253D] hover:bg-[#1D2D44] text-white shadow-sm border border-[#2C3E5A]"
-              : "bg-[#E2DDD2] text-[#A0AEC0] cursor-not-allowed"
+              : "bg-[#E2DDD2] text-[#4B5E7A] cursor-not-allowed"
           }`}
-          aria-label={`Pilih ${product.name}`}
+          aria-label={`Pilih menu ${product.name}`}
         >
           <Plus className="w-4 h-4" />
           <span>Pilih</span>

@@ -181,15 +181,15 @@ export function CheckoutModal({
             <h2 className="font-black text-base sm:text-lg text-[#16253D]">
               Checkout & Pembayaran
             </h2>
-            <span className="text-xs text-[#877259]">
+            <span className="text-xs text-[#5C4028] font-bold">
               Total Tagihan:{" "}
               <strong className="text-[#16253D]">{formatRupiah(totalAmount)}</strong>
             </span>
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-[#F6F3EC] hover:bg-[#E2DDD2] text-[#16253D] flex items-center justify-center transition-colors"
-            aria-label="Tutup Checkout"
+            className="w-10 h-10 rounded-full bg-[#F6F3EC] hover:bg-[#E2DDD2] text-[#16253D] flex items-center justify-center transition-colors"
+            aria-label="Tutup formulir checkout"
           >
             <X className="w-5 h-5" />
           </button>
@@ -204,38 +204,41 @@ export function CheckoutModal({
             </h3>
 
             <div>
-              <label className="block text-xs font-bold text-[#4B5E7A] mb-1">
+              <label htmlFor="checkout-name" className="block text-xs font-bold text-[#2C3E5A] mb-1">
                 Nama Lengkap <span className="text-red-500">*</span>
               </label>
               <input
+                id="checkout-name"
                 type="text"
                 value={customerName}
                 onChange={(e) => setCustomerName(e.target.value)}
                 placeholder="Contoh: Budi Santoso"
-                className="w-full px-3.5 py-2.5 rounded-xl border border-[#CFC8B8] text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#16253D] bg-[#F6F3EC] text-[#16253D]"
+                className="w-full px-3.5 py-2.5 min-h-[44px] rounded-xl border border-[#CFC8B8] text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#16253D] bg-[#F6F3EC] text-[#16253D]"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-[#4B5E7A] mb-1">
+              <label htmlFor="checkout-phone" className="block text-xs font-bold text-[#2C3E5A] mb-1">
                 Nomor WhatsApp <span className="text-red-500">*</span>
               </label>
               <input
+                id="checkout-phone"
                 type="tel"
                 value={customerPhone}
                 onChange={(e) => setCustomerPhone(e.target.value)}
                 placeholder="Contoh: 081234567890"
-                className="w-full px-3.5 py-2.5 rounded-xl border border-[#CFC8B8] text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#16253D] bg-[#F6F3EC] text-[#16253D]"
+                className="w-full px-3.5 py-2.5 min-h-[44px] rounded-xl border border-[#CFC8B8] text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#16253D] bg-[#F6F3EC] text-[#16253D]"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-[#4B5E7A] mb-1">
+              <label htmlFor="checkout-address" className="block text-xs font-bold text-[#2C3E5A] mb-1">
                 Alamat Lengkap / Info Pengantaran <span className="text-red-500">*</span>
               </label>
               <textarea
+                id="checkout-address"
                 value={customerAddress}
                 onChange={(e) => setCustomerAddress(e.target.value)}
                 placeholder="Contoh: Jl. Katapang No. 12 (Ambil di Toko / Antar ke Rumah)"
@@ -246,15 +249,16 @@ export function CheckoutModal({
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-[#4B5E7A] mb-1">
+              <label htmlFor="checkout-notes" className="block text-xs font-bold text-[#2C3E5A] mb-1">
                 Catatan Pesanan Khusus (Opsional)
               </label>
               <input
+                id="checkout-notes"
                 type="text"
                 value={customerNotes}
                 onChange={(e) => setCustomerNotes(e.target.value)}
                 placeholder="Contoh: Sambal dipisah ya kak"
-                className="w-full px-3.5 py-2.5 rounded-xl border border-[#CFC8B8] text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#16253D] bg-[#F6F3EC] text-[#16253D]"
+                className="w-full px-3.5 py-2.5 min-h-[44px] rounded-xl border border-[#CFC8B8] text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#16253D] bg-[#F6F3EC] text-[#16253D]"
               />
             </div>
           </div>
@@ -271,10 +275,10 @@ export function CheckoutModal({
                 <button
                   type="button"
                   onClick={() => setPaymentMethod("BANK_TRANSFER")}
-                  className={`p-3 rounded-2xl border flex flex-col items-center gap-1.5 transition-all text-center ${
+                  className={`p-3 min-h-[48px] rounded-2xl border flex flex-col items-center gap-1.5 transition-all text-center ${
                     paymentMethod === "BANK_TRANSFER"
                       ? "border-[#16253D] bg-[#16253D] text-white shadow-sm"
-                      : "border-[#CFC8B8] bg-[#F6F3EC] text-[#4B5E7A] hover:bg-[#EFECE3]"
+                      : "border-[#CFC8B8] bg-[#F6F3EC] text-[#2C3E5A] hover:bg-[#EFECE3]"
                   }`}
                 >
                   <CreditCard className="w-5 h-5" />
@@ -287,10 +291,10 @@ export function CheckoutModal({
                 <button
                   type="button"
                   onClick={() => setPaymentMethod("QRIS")}
-                  className={`p-3 rounded-2xl border flex flex-col items-center gap-1.5 transition-all text-center ${
+                  className={`p-3 min-h-[48px] rounded-2xl border flex flex-col items-center gap-1.5 transition-all text-center ${
                     paymentMethod === "QRIS"
                       ? "border-[#16253D] bg-[#16253D] text-white shadow-sm"
-                      : "border-[#CFC8B8] bg-[#F6F3EC] text-[#4B5E7A] hover:bg-[#EFECE3]"
+                      : "border-[#CFC8B8] bg-[#F6F3EC] text-[#2C3E5A] hover:bg-[#EFECE3]"
                   }`}
                 >
                   <QrCode className="w-5 h-5" />

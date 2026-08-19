@@ -118,8 +118,8 @@ export function ProductCustomizerModal({
           </h2>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-[#F6F3EC] hover:bg-[#E2DDD2] text-[#16253D] flex items-center justify-center transition-colors"
-            aria-label="Tutup"
+            className="w-10 h-10 rounded-full bg-[#F6F3EC] hover:bg-[#E2DDD2] text-[#16253D] flex items-center justify-center transition-colors"
+            aria-label="Tutup jendela kustomisasi"
           >
             <X className="w-5 h-5" />
           </button>
@@ -130,10 +130,10 @@ export function ProductCustomizerModal({
           {/* Product Overview Header */}
           <div className="flex gap-4 items-center bg-white p-3.5 rounded-2xl border border-[#E2DDD2]">
             <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden bg-[#EFECE3] shrink-0">
-              <Image src={item.imageUrl} alt={item.name} fill className="object-cover" />
+              <Image src={item.imageUrl} alt={item.name} fill sizes="80px" className="object-cover" />
             </div>
             <div>
-              <span className="text-[10px] font-black text-[#7D5836] uppercase tracking-wider block">
+              <span className="text-[10px] font-black text-[#5C4028] uppercase tracking-wider block">
                 {itemType === "PACKAGE" ? "Paket Bundling" : "Menu Cireng"}
               </span>
               <h3 className="font-black text-sm sm:text-base text-[#16253D] line-clamp-1">
@@ -152,7 +152,7 @@ export function ProductCustomizerModal({
                 <span className="font-black text-xs sm:text-sm text-[#16253D]">
                   Pilih Varian:
                 </span>
-                <span className="text-[11px] font-black text-[#7D5836]">Wajib 1</span>
+                <span className="text-[11px] font-black text-[#5C4028]">Wajib 1</span>
               </div>
               <div className="space-y-2">
                 {(item as ProductItem).variants!.map((variant) => {
@@ -162,7 +162,7 @@ export function ProductCustomizerModal({
                       key={variant.id}
                       type="button"
                       onClick={() => setSelectedVariant(variant)}
-                      className={`w-full p-3 rounded-2xl border text-left flex items-center justify-between transition-all ${
+                      className={`w-full p-3 rounded-2xl border text-left flex items-center justify-between transition-all min-h-[44px] ${
                         isSelected
                           ? "bg-white border-[#16253D] ring-2 ring-[#16253D]/10 shadow-sm"
                           : "bg-white border-[#E2DDD2] hover:border-[#CFC8B8]"
@@ -173,7 +173,7 @@ export function ProductCustomizerModal({
                       </span>
                       <div className="flex items-center gap-2">
                         {variant.price > 0 && (
-                          <span className="text-xs font-bold text-[#7D5836]">
+                          <span className="text-xs font-bold text-[#5C4028]">
                             +{formatRupiah(variant.price)}
                           </span>
                         )}
@@ -211,7 +211,7 @@ export function ProductCustomizerModal({
                       key={sauce}
                       type="button"
                       onClick={() => handleSauceToggle(sauce)}
-                      className={`p-3 rounded-2xl border text-left flex items-center justify-between transition-all ${
+                      className={`p-3 rounded-2xl border text-left flex items-center justify-between transition-all min-h-[44px] ${
                         isSelected
                           ? "bg-white border-[#16253D] ring-2 ring-[#16253D]/10 shadow-sm"
                           : "bg-white border-[#E2DDD2] hover:border-[#CFC8B8]"
@@ -243,7 +243,7 @@ export function ProductCustomizerModal({
                 <span className="font-black text-xs sm:text-sm text-[#16253D]">
                   Tambah Ekstra Saus / Kuah:
                 </span>
-                <span className="text-[11px] font-bold text-[#877259]">Opsional</span>
+                <span className="text-[11px] font-bold text-[#5C4028]">Opsional</span>
               </div>
               <div className="space-y-2">
                 {availableAddons.map((addon) => {
@@ -253,7 +253,7 @@ export function ProductCustomizerModal({
                       key={addon.id}
                       type="button"
                       onClick={() => handleAddonToggle(addon.id)}
-                      className={`w-full p-3 rounded-2xl border text-left flex items-center justify-between transition-all ${
+                      className={`w-full p-3 rounded-2xl border text-left flex items-center justify-between transition-all min-h-[44px] ${
                         isSelected
                           ? "bg-white border-[#16253D] ring-2 ring-[#16253D]/15 shadow-sm"
                           : "bg-white border-[#E2DDD2] hover:border-[#CFC8B8]"
@@ -263,12 +263,12 @@ export function ProductCustomizerModal({
                         <span className="text-xs sm:text-sm font-bold text-[#16253D] block">
                           {addon.name}
                         </span>
-                        <span className="text-[11px] text-[#4B5E7A]">
+                        <span className="text-[11px] text-[#2C3E5A]">
                           {addon.description || "Cup saus ekstra nikmat"}
                         </span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <span className="text-xs font-black text-[#7D5836]">
+                        <span className="text-xs font-black text-[#5C4028]">
                           +{formatRupiah(addon.price)}
                         </span>
                         <div
@@ -297,8 +297,8 @@ export function ProductCustomizerModal({
               <button
                 type="button"
                 onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                className="w-8 h-8 rounded-full bg-[#F6F3EC] hover:bg-[#E2DDD2] text-[#16253D] flex items-center justify-center font-bold"
-                aria-label="Kurang"
+                className="w-10 h-10 rounded-full bg-[#F6F3EC] hover:bg-[#E2DDD2] text-[#16253D] flex items-center justify-center font-bold"
+                aria-label="Kurangi jumlah porsi"
               >
                 <Minus className="w-4 h-4" />
               </button>
@@ -308,8 +308,8 @@ export function ProductCustomizerModal({
               <button
                 type="button"
                 onClick={() => setQuantity((q) => q + 1)}
-                className="w-8 h-8 rounded-full bg-[#16253D] hover:bg-[#1D2D44] text-white flex items-center justify-center font-bold"
-                aria-label="Tambah"
+                className="w-10 h-10 rounded-full bg-[#16253D] hover:bg-[#1D2D44] text-white flex items-center justify-center font-bold"
+                aria-label="Tambah jumlah porsi"
               >
                 <Plus className="w-4 h-4" />
               </button>
@@ -320,7 +320,7 @@ export function ProductCustomizerModal({
         {/* Modal Sticky Footer CTA */}
         <div className="p-4 sm:p-5 bg-white border-t border-[#E2DDD2] flex items-center justify-between gap-3">
           <div>
-            <span className="text-[10px] uppercase font-extrabold text-[#877259] block tracking-wider">
+            <span className="text-[10px] uppercase font-extrabold text-[#5C4028] block tracking-wider">
               Total Harga
             </span>
             <span className="text-lg sm:text-xl font-black text-[#16253D]">
@@ -331,7 +331,7 @@ export function ProductCustomizerModal({
           <button
             type="button"
             onClick={handleConfirmAdd}
-            className="flex-1 sm:flex-initial px-6 py-3.5 bg-[#16253D] hover:bg-[#1D2D44] text-white font-black text-xs sm:text-sm rounded-full shadow-lg glow-navy active:scale-95 transition-all text-center border border-[#2C3E5A]"
+            className="flex-1 sm:flex-initial min-h-[48px] px-6 py-3.5 bg-[#16253D] hover:bg-[#1D2D44] text-white font-black text-xs sm:text-sm rounded-full shadow-lg glow-navy active:scale-95 transition-all text-center border border-[#2C3E5A]"
           >
             Tambah ke Keranjang
           </button>

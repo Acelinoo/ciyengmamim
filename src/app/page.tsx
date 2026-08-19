@@ -3,8 +3,7 @@ import { calculateOperationalStatus } from "@/lib/operational";
 import { StoreClientView } from "@/components/public/StoreClientView";
 import { Metadata } from "next";
 
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
+export const revalidate = 30;
 
 export async function generateMetadata(): Promise<Metadata> {
   const { store } = await getPublicStoreData();

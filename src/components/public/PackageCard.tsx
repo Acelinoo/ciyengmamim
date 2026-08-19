@@ -19,12 +19,12 @@ export function PackageCard({ packageItem, onSelect }: PackageCardProps) {
             src={packageItem.imageUrl}
             alt={packageItem.name}
             fill
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 380px"
             className="object-cover group-hover:scale-105 transition-transform duration-300"
           />
           {!packageItem.isAvailable && (
             <div className="absolute inset-0 bg-[#16253D]/75 backdrop-blur-xs flex items-center justify-center">
-              <span className="px-3.5 py-1.5 bg-[#D83A2E] text-white font-black text-xs uppercase tracking-wider rounded-full shadow-md">
+              <span className="px-3.5 py-1.5 bg-[#B91C1C] text-white font-black text-xs uppercase tracking-wider rounded-full shadow-md">
                 Habis Hari Ini
               </span>
             </div>
@@ -35,7 +35,7 @@ export function PackageCard({ packageItem, onSelect }: PackageCardProps) {
         <h3 className="font-black text-xl text-[#16253D] mb-1 group-hover:text-[#1D2D44] transition-colors">
           {packageItem.name}
         </h3>
-        <p className="text-xs sm:text-sm text-[#4B5E7A] font-bold mb-4">
+        <p className="text-xs sm:text-sm text-[#2C3E5A] font-bold mb-4">
           {packageItem.description || "Bebas pilih varian rasa"}
         </p>
 
@@ -53,7 +53,7 @@ export function PackageCard({ packageItem, onSelect }: PackageCardProps) {
       {/* Footer Price & Select Button */}
       <div className="pt-3 border-t border-[#EFECE3] flex items-center justify-between gap-2">
         <div>
-          <span className="text-[10px] uppercase font-extrabold text-[#877259] block tracking-wider">
+          <span className="text-[10px] uppercase font-extrabold text-[#5C4028] block tracking-wider">
             Total Harga
           </span>
           <span className="text-lg sm:text-xl font-black text-[#16253D]">
@@ -64,12 +64,12 @@ export function PackageCard({ packageItem, onSelect }: PackageCardProps) {
         <button
           onClick={() => onSelect(packageItem)}
           disabled={!packageItem.isAvailable}
-          className={`flex items-center gap-1.5 px-5 py-2.5 rounded-full font-black text-xs sm:text-sm transition-all active:scale-95 ${
+          className={`flex items-center gap-1.5 px-5 py-2.5 min-h-[44px] rounded-full font-black text-xs sm:text-sm transition-all active:scale-95 ${
             packageItem.isAvailable
               ? "bg-[#16253D] hover:bg-[#1D2D44] text-white shadow-md glow-navy border border-[#2C3E5A]"
-              : "bg-[#E2DDD2] text-[#A0AEC0] cursor-not-allowed"
+              : "bg-[#E2DDD2] text-[#4B5E7A] cursor-not-allowed"
           }`}
-          aria-label={`Pilih ${packageItem.name}`}
+          aria-label={`Pilih paket ${packageItem.name}`}
         >
           <Plus className="w-4 h-4" />
           <span>Pilih</span>

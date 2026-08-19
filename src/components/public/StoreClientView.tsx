@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import dynamic from "next/dynamic";
 import {
   ProductItem,
   PackageItem,
@@ -16,11 +17,24 @@ import { HeaderNav } from "./HeaderNav";
 import { HeroSection } from "./HeroSection";
 import { ProductCard } from "./ProductCard";
 import { PackageCard } from "./PackageCard";
-import { ProductCustomizerModal } from "./ProductCustomizerModal";
-import { CartDrawer } from "./CartDrawer";
-import { CheckoutModal } from "./CheckoutModal";
 import { StoreFooter } from "./StoreFooter";
 import { formatRupiah } from "@/lib/whatsapp";
+
+// Lazy-load heavy modals (Not needed on initial page load / TBT optimization)
+const ProductCustomizerModal = dynamic(
+  () => import("./ProductCustomizerModal").then((mod) => mod.ProductCustomizerModal),
+  { ssr: false }
+);
+
+const CartDrawer = dynamic(
+  () => import("./CartDrawer").then((mod) => mod.CartDrawer),
+  { ssr: false }
+);
+
+const CheckoutModal = dynamic(
+  () => import("./CheckoutModal").then((mod) => mod.CheckoutModal),
+  { ssr: false }
+);
 
 interface StoreClientViewProps {
   store: StoreSettingsType;
@@ -135,7 +149,7 @@ export function StoreClientView({
                 Paket
               </h2>
             </div>
-            <p className="text-xs sm:text-sm text-[#4B5E7A] max-w-sm font-semibold">
+            <p className="text-xs sm:text-sm text-[#2C3E5A] max-w-sm font-semibold">
               Semua paket sudah termasuk Creamy Ranch Sauce. Bebas pilih varian rasa!
             </p>
           </div>
@@ -158,7 +172,7 @@ export function StoreClientView({
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-[#16253D] tracking-tight font-display">
             Menu Cireng
           </h2>
-          <p className="text-xs sm:text-sm text-[#4B5E7A] mt-2 font-medium">
+          <p className="text-xs sm:text-sm text-[#2C3E5A] mt-2 font-medium">
             Pilihan menu: Ayam Rica, Sapi Teriyaki, Paru Rica, Pizza, dan Keju.
           </p>
         </div>
@@ -174,10 +188,11 @@ export function StoreClientView({
             <button
               key={tab.id}
               onClick={() => setActiveCategory(tab.id as typeof activeCategory)}
-              className={`px-5 py-2.5 rounded-full font-bold text-xs sm:text-sm whitespace-nowrap transition-all ${
+              aria-label={`Filter kategori ${tab.label}`}
+              className={`px-5 py-2.5 min-h-[44px] rounded-full font-bold text-xs sm:text-sm whitespace-nowrap transition-all ${
                 activeCategory === tab.id
                   ? "bg-[#16253D] text-white shadow-md border border-[#2C3E5A]"
-                  : "bg-white text-[#4B5E7A] border border-[#E2DDD2] hover:border-[#CFC8B8] hover:text-[#16253D]"
+                  : "bg-white text-[#2C3E5A] border border-[#E2DDD2] hover:border-[#CFC8B8] hover:text-[#16253D]"
               }`}
             >
               {tab.label}
@@ -216,7 +231,7 @@ export function StoreClientView({
                 Saus
               </h2>
             </div>
-            <p className="text-xs sm:text-sm text-[#4B5E7A] font-medium">
+            <p className="text-xs sm:text-sm text-[#2C3E5A] font-medium">
               Pilihan saus: Creamy Ranch, Taichan, Keju, dan Kuah Rujak.
             </p>
           </div>
@@ -231,10 +246,10 @@ export function StoreClientView({
                   <h3 className="font-black text-sm text-[#16253D] mb-0.5">
                     {addon.name}
                   </h3>
-                  <p className="text-[11px] text-[#4B5E7A] line-clamp-1 mb-1 font-medium">
+                  <p className="text-[11px] text-[#2C3E5A] line-clamp-1 mb-1 font-medium">
                     {addon.description}
                   </p>
-                  <span className="text-xs font-black text-[#7D5836]">
+                  <span className="text-xs font-black text-[#5C4028]">
                     {formatRupiah(addon.price)}
                   </span>
                 </div>
@@ -252,7 +267,8 @@ export function StoreClientView({
         <div className="fixed bottom-4 left-4 right-4 z-40 md:hidden animate-slide-up">
           <button
             onClick={() => setIsCartOpen(true)}
-            className="w-full bg-[#16253D] text-white p-4 rounded-2xl shadow-2xl flex items-center justify-between font-black text-sm active:scale-95 transition-all border border-[#2C3E5A]"
+            aria-label={`Lihat Keranjang Belanja ${totalCartCount} porsi, total ${formatRupiah(totalCartAmount)}`}
+            className="w-full bg-[#16253D] text-white p-4 min-h-[52px] rounded-2xl shadow-2xl flex items-center justify-between font-black text-sm active:scale-95 transition-all border border-[#2C3E5A]"
           >
             <div className="flex items-center gap-2.5">
               <div className="w-7 h-7 bg-[#D83A2E] text-white rounded-lg flex items-center justify-center text-xs font-black">
@@ -267,32 +283,38 @@ export function StoreClientView({
         </div>
       )}
 
-      {/* 8. Modals */}
-      <ProductCustomizerModal
-        isOpen={Boolean(customizerItem)}
-        onClose={() => setCustomizerItem(null)}
-        item={customizerItem?.item || null}
-        itemType={customizerItem?.type || "PRODUCT"}
-        availableAddons={addons}
-        onAddToCart={handleAddToCart}
-      />
+      {/* 8. Modals (Loaded dynamically) */}
+      {Boolean(customizerItem) && (
+        <ProductCustomizerModal
+          isOpen={Boolean(customizerItem)}
+          onClose={() => setCustomizerItem(null)}
+          item={customizerItem?.item || null}
+          itemType={customizerItem?.type || "PRODUCT"}
+          availableAddons={addons}
+          onAddToCart={handleAddToCart}
+        />
+      )}
 
-      <CartDrawer
-        isOpen={isCartOpen}
-        onClose={() => setIsCartOpen(false)}
-        cartItems={cart}
-        onUpdateQuantity={handleUpdateQuantity}
-        onRemoveItem={handleRemoveItem}
-        onProceedCheckout={() => setIsCheckoutOpen(true)}
-      />
+      {isCartOpen && (
+        <CartDrawer
+          isOpen={isCartOpen}
+          onClose={() => setIsCartOpen(false)}
+          cartItems={cart}
+          onUpdateQuantity={handleUpdateQuantity}
+          onRemoveItem={handleRemoveItem}
+          onProceedCheckout={() => setIsCheckoutOpen(true)}
+        />
+      )}
 
-      <CheckoutModal
-        isOpen={isCheckoutOpen}
-        onClose={() => setIsCheckoutOpen(false)}
-        cartItems={cart}
-        paymentSettings={payment}
-        onSuccessOrder={handleClearCart}
-      />
+      {isCheckoutOpen && (
+        <CheckoutModal
+          isOpen={isCheckoutOpen}
+          onClose={() => setIsCheckoutOpen(false)}
+          cartItems={cart}
+          paymentSettings={payment}
+          onSuccessOrder={handleClearCart}
+        />
+      )}
 
       {/* 9. Store Footer */}
       <StoreFooter store={store} operational={operational} />

@@ -15,12 +15,12 @@
     --navy-deep: #16253D;
     --navy-primary: #1D2D44;
     --navy-secondary: #2C3E5A;
-    --navy-muted: #4B5E7A;
+    --navy-muted: #2C3E5A;
     --navy-light: #EBF1F8;
 
     /* Earthy Mocha Brown (from logo dress & promo capsules) */
     --brown-mocha: #7D5836;
-    --brown-taupe: #877259;
+    --brown-taupe: #5C4028;
     --brown-soft: #F4EFE6;
 
     /* Golden Mustard (from Paket A promo badge) */
@@ -29,7 +29,7 @@
     --accent-mustard-light: #FEF7E6;
 
     /* Culinary Accents */
-    --accent-chili: #D83A2E;
+    --accent-chili: #B91C1C;
     --accent-green: #15803D;
   }
 
