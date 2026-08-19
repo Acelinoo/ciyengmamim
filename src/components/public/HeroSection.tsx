@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, Sparkles, MapPin, Award } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import Image from "next/image";
 
 export function HeroSection() {
@@ -54,24 +54,6 @@ export function HeroSection() {
       {/* 🎯 MAIN HERO CONTENT (CENTRAL FOCAL POINT - Z-INDEX 20)                   */}
       {/* ========================================================================= */}
       <div className="relative z-20 max-w-4xl mx-auto text-center">
-        {/* Top Badges */}
-        <div className="flex flex-wrap items-center justify-center gap-2 mb-4 md:mb-6">
-          <div className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-white border border-[#CFC8B8] text-[#16253D] text-xs md:text-sm font-black tracking-wide shadow-2xs">
-            <Sparkles className="w-4 h-4 text-[#EAA623]" />
-            <span>✨ Lezatnya gaya Resto ✨</span>
-          </div>
-
-          <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#16253D] text-white text-xs font-black tracking-wider uppercase shadow-2xs border border-[#2C3E5A]">
-            <Award className="w-3.5 h-3.5 text-[#EAA623]" />
-            <span>Since 2007</span>
-          </div>
-
-          <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#EFECE3] border border-[#E2DDD2] text-[#877259] text-xs font-bold shadow-2xs">
-            <MapPin className="w-3.5 h-3.5 text-[#16253D]" />
-            <span>GC Kuliner Soreang</span>
-          </div>
-        </div>
-
         {/* Brand Avatar Icon from Gambar 1 */}
         <div className="relative w-20 h-20 md:w-24 md:h-24 mx-auto mb-3 rounded-3xl overflow-hidden bg-[#16253D] p-1 shadow-md border-2 border-[#2C3E5A]">
           <Image
