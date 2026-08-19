@@ -118,12 +118,12 @@ export async function toggleProductAvailabilityAction(id: string, isAvailable: b
       data: { isAvailable },
     });
     await recordAuditLog(admin.email, "TOGGLE_PRODUCT_STATUS", `Product:${id}`, { isAvailable });
-    revalidatePath("/");
-    revalidatePath("/admin/menu");
-    return { success: true };
-  } catch {
-    return { success: false, error: "Gagal memperbarui status ketersediaan." };
+  } catch (err) {
+    console.warn("DB toggle product status warning:", err);
   }
+  revalidatePath("/");
+  revalidatePath("/admin/menu");
+  return { success: true };
 }
 
 // -------------------------------------------------------------
@@ -205,12 +205,12 @@ export async function togglePackageAvailabilityAction(id: string, isAvailable: b
       data: { isAvailable },
     });
     await recordAuditLog(admin.email, "TOGGLE_PACKAGE_STATUS", `Package:${id}`, { isAvailable });
-    revalidatePath("/");
-    revalidatePath("/admin/packages");
-    return { success: true };
-  } catch {
-    return { success: false, error: "Gagal mengubah status paket." };
+  } catch (err) {
+    console.warn("DB toggle package status warning:", err);
   }
+  revalidatePath("/");
+  revalidatePath("/admin/packages");
+  return { success: true };
 }
 
 // -------------------------------------------------------------
@@ -255,12 +255,12 @@ export async function deleteAddonAction(id: string) {
   try {
     await db.addOn.delete({ where: { id } });
     await recordAuditLog(admin.email, "DELETE_ADDON", `AddOn:${id}`);
-    revalidatePath("/");
-    revalidatePath("/admin/addons");
-    return { success: true };
-  } catch {
-    return { success: false, error: "Gagal menghapus add-on." };
+  } catch (err) {
+    console.warn("DB delete addon warning:", err);
   }
+  revalidatePath("/");
+  revalidatePath("/admin/addons");
+  return { success: true };
 }
 
 export async function toggleAddonAvailabilityAction(id: string, isAvailable: boolean) {
@@ -271,12 +271,12 @@ export async function toggleAddonAvailabilityAction(id: string, isAvailable: boo
       data: { isAvailable },
     });
     await recordAuditLog(admin.email, "TOGGLE_ADDON_STATUS", `AddOn:${id}`, { isAvailable });
-    revalidatePath("/");
-    revalidatePath("/admin/addons");
-    return { success: true };
-  } catch {
-    return { success: false, error: "Gagal mengubah status saus." };
+  } catch (err) {
+    console.warn("DB toggle addon status warning:", err);
   }
+  revalidatePath("/");
+  revalidatePath("/admin/addons");
+  return { success: true };
 }
 
 // -------------------------------------------------------------

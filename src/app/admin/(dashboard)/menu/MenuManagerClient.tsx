@@ -189,24 +189,26 @@ export function MenuManagerClient({
             </div>
 
             <div className="flex items-center gap-2 self-end sm:self-center">
-              {/* Stock Toggle */}
+              {/* Stock Toggle 1-Click */}
               <button
                 type="button"
                 onClick={() => handleToggleStock(product)}
-                className={`px-3 py-1.5 rounded-full text-xs font-bold transition-colors ${
+                disabled={isPending}
+                className={`px-3.5 py-1.5 rounded-full text-xs font-black transition-all active:scale-95 shadow-2xs border ${
                   product.isAvailable
-                    ? "bg-[#EBF7EE] text-[#1E562A] hover:bg-[#D4EED8]"
-                    : "bg-red-50 text-red-700 hover:bg-red-100"
+                    ? "bg-[#F0FDF4] text-[#15803D] border-[#DCFCE7] hover:bg-[#DCFCE7]"
+                    : "bg-[#FEF2F2] text-[#D83A2E] border-[#FEE2E2] hover:bg-[#FEE2E2]"
                 }`}
+                title="Klik untuk mengubah status stok menu"
               >
-                {product.isAvailable ? "🟢 Tersedia" : "🔴 Habis"}
+                {product.isAvailable ? "🟢 Tersedia" : "🔴 Habis (Sold Out)"}
               </button>
 
               {/* Edit */}
               <button
                 type="button"
                 onClick={() => handleOpenEditModal(product)}
-                className="p-2 rounded-xl bg-[#FAF7EE] hover:bg-[#EFEBE0] text-[#1E1D1A] transition-colors"
+                className="p-2 rounded-xl bg-[#F6F3EC] hover:bg-[#E2DDD2] text-[#16253D] transition-colors border border-[#E2DDD2]"
                 title="Ubah Menu"
               >
                 <Edit2 className="w-4 h-4" />
@@ -216,7 +218,7 @@ export function MenuManagerClient({
               <button
                 type="button"
                 onClick={() => handleDelete(product.id)}
-                className="p-2 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 transition-colors"
+                className="p-2 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 transition-colors border border-red-200"
                 title="Hapus Menu"
               >
                 <Trash2 className="w-4 h-4" />
