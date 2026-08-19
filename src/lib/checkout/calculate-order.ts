@@ -30,13 +30,17 @@ export async function calculateAndVerifyOrder(
 
   const storeWhatsapp = store?.whatsappNumber || INITIAL_STORE_SETTINGS.whatsappNumber || "6289676636637";
   const paymentMethodName =
-    payload.paymentMethod === "QRIS"
+    payload.paymentMethod === "COD"
+      ? "Bayar di Tempat (COD / Tunai)"
+      : payload.paymentMethod === "QRIS"
       ? "QRIS (Scan Barcode)"
       : `Transfer Bank ${payment?.bankName || INITIAL_PAYMENT_SETTINGS.bankName}`;
 
   // 2. Format Bukti Pembayaran
   let proofUrl = "Belum diunggah (akan dikirim manual via chat WhatsApp)";
-  if (payload.paymentProofToken && payload.paymentProofToken.trim() !== "") {
+  if (payload.paymentMethod === "COD") {
+    proofUrl = "Bayar Tunai saat pesanan diterima";
+  } else if (payload.paymentProofToken && payload.paymentProofToken.trim() !== "") {
     // Prioritas:
     // 1. NEXT_PUBLIC_APP_URL jika diset ke domain publik (misal: https://ciyengmamim.vercel.app)
     // 2. appOrigin dari browser jika bukan localhost

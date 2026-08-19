@@ -14,7 +14,7 @@ export const CheckoutPayloadSchema = z.object({
     .min(3, "Alamat / Info Pengantaran minimal 3 karakter")
     .max(300, "Alamat maksimal 300 karakter"),
   customerNotes: z.string().max(200, "Catatan maksimal 200 karakter").optional().default(""),
-  paymentMethod: z.enum(["BANK_TRANSFER", "QRIS"], {
+  paymentMethod: z.enum(["BANK_TRANSFER", "QRIS", "COD"], {
     message: "Pilih salah satu metode pembayaran",
   }),
   paymentProofToken: z.string().optional().nullable().default(""),
@@ -58,8 +58,7 @@ export const ProductInputSchema = z.object({
         price: z.coerce.number().int().min(0, "Harga varian tidak boleh negatif"),
       })
     )
-    .optional()
-    .default([]),
+    .optional(),
 });
 
 // 4. Package CRUD Schema
@@ -70,7 +69,7 @@ export const PackageInputSchema = z.object({
   description: z.string().optional().nullable(),
   price: z.coerce.number().int().min(0, "Harga paket tidak boleh negatif"),
   imageUrl: z.string().min(1, "Foto paket wajib diunggah"),
-  packageItems: z.array(z.string()).min(1, "Minimal harus ada 1 item paket"),
+  packageItems: z.array(z.string()).min(1, "Minimal ada 1 isi paket"),
   includedSauces: z.array(z.string()).default([]),
   isAvailable: z.boolean().default(true),
   sortOrder: z.coerce.number().int().default(0),
@@ -97,6 +96,8 @@ export const PaymentSettingsSchema = z.object({
   qrisNmid: z.string().optional().default(""),
   isBankActive: z.boolean().default(true),
   isQrisActive: z.boolean().default(true),
+  isCodActive: z.boolean().default(true),
+  codNotes: z.string().optional().default(""),
 });
 
 // 7. Operational Settings Schema

@@ -74,6 +74,8 @@ export interface PaymentSettingsType {
   qrisNmid: string | null;
   isQrisActive: boolean;
   isBankActive: boolean;
+  isCodActive: boolean;
+  codNotes?: string | null;
 }
 
 // Client Shopping Cart Item
@@ -100,7 +102,7 @@ export interface CheckoutPayload {
   customerPhone: string;
   customerAddress: string;
   customerNotes?: string;
-  paymentMethod: "BANK_TRANSFER" | "QRIS";
+  paymentMethod: "BANK_TRANSFER" | "QRIS" | "COD";
   paymentProofToken: string;
   appOrigin?: string;
   items: {

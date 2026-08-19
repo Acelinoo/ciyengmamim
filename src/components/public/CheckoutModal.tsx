@@ -11,6 +11,7 @@ import {
   Check,
   QrCode,
   CreditCard,
+  Banknote,
   MessageCircle,
   AlertCircle,
   Loader2,
@@ -38,8 +39,12 @@ export function CheckoutModal({
   const [customerPhone, setCustomerPhone] = useState("");
   const [customerAddress, setCustomerAddress] = useState("");
   const [customerNotes, setCustomerNotes] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState<"BANK_TRANSFER" | "QRIS">(
-    paymentSettings.isBankActive ? "BANK_TRANSFER" : "QRIS"
+  const [paymentMethod, setPaymentMethod] = useState<"BANK_TRANSFER" | "QRIS" | "COD">(
+    paymentSettings.isBankActive
+      ? "BANK_TRANSFER"
+      : paymentSettings.isQrisActive
+      ? "QRIS"
+      : "COD"
   );
 
   const [isUploading, setIsUploading] = useState(false);
@@ -132,7 +137,7 @@ export function CheckoutModal({
         customerAddress: customerAddress.trim(),
         customerNotes: customerNotes.trim(),
         paymentMethod,
-        paymentProofToken: proofToken || "",
+        paymentProofToken: paymentMethod === "COD" ? "" : (proofToken || ""),
         appOrigin: typeof window !== "undefined" ? window.location.origin : "",
         items: cartItems.map((item) => ({
           cartItemId: item.cartItemId,
@@ -261,12 +266,12 @@ export function CheckoutModal({
             </h3>
 
             {/* Payment Method Selector */}
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
               {paymentSettings.isBankActive && (
                 <button
                   type="button"
                   onClick={() => setPaymentMethod("BANK_TRANSFER")}
-                  className={`p-3.5 rounded-2xl border flex flex-col items-center gap-1.5 transition-all ${
+                  className={`p-3 rounded-2xl border flex flex-col items-center gap-1.5 transition-all text-center ${
                     paymentMethod === "BANK_TRANSFER"
                       ? "border-[#16253D] bg-[#16253D] text-white shadow-sm"
                       : "border-[#CFC8B8] bg-[#F6F3EC] text-[#4B5E7A] hover:bg-[#EFECE3]"
@@ -282,7 +287,7 @@ export function CheckoutModal({
                 <button
                   type="button"
                   onClick={() => setPaymentMethod("QRIS")}
-                  className={`p-3.5 rounded-2xl border flex flex-col items-center gap-1.5 transition-all ${
+                  className={`p-3 rounded-2xl border flex flex-col items-center gap-1.5 transition-all text-center ${
                     paymentMethod === "QRIS"
                       ? "border-[#16253D] bg-[#16253D] text-white shadow-sm"
                       : "border-[#CFC8B8] bg-[#F6F3EC] text-[#4B5E7A] hover:bg-[#EFECE3]"
@@ -290,7 +295,23 @@ export function CheckoutModal({
                 >
                   <QrCode className="w-5 h-5" />
                   <span className="font-bold text-xs">QRIS Dinamis</span>
-                  <span className="text-[10px] opacity-80">Semua E-Wallet</span>
+                  <span className="text-[10px] opacity-80">E-Wallet</span>
+                </button>
+              )}
+
+              {paymentSettings.isCodActive && (
+                <button
+                  type="button"
+                  onClick={() => setPaymentMethod("COD")}
+                  className={`p-3 rounded-2xl border flex flex-col items-center gap-1.5 transition-all text-center ${
+                    paymentMethod === "COD"
+                      ? "border-[#16253D] bg-[#16253D] text-white shadow-sm"
+                      : "border-[#CFC8B8] bg-[#F6F3EC] text-[#4B5E7A] hover:bg-[#EFECE3]"
+                  }`}
+                >
+                  <Banknote className="w-5 h-5" />
+                  <span className="font-bold text-xs">Bayar di Tempat</span>
+                  <span className="text-[10px] opacity-80">COD / Tunai</span>
                 </button>
               )}
             </div>
@@ -359,76 +380,102 @@ export function CheckoutModal({
                 )}
               </div>
             )}
-          </div>
 
-          {/* 3. UPLOAD BUKTI PEMBAYARAN */}
-          <div className="space-y-3 bg-white p-4 sm:p-5 rounded-2xl border border-[#E2DDD2]">
-            <div className="flex items-center justify-between">
-              <h3 className="font-black text-xs sm:text-sm text-[#16253D] uppercase tracking-wider">
-                3. Upload Bukti Pembayaran
-              </h3>
-              <span className="text-[11px] text-[#877259] font-bold">
-                (Opsional / Bisa kirim di WA)
-              </span>
-            </div>
-
-            {/* Dropzone Container */}
-            <label className="relative border-2 border-dashed border-[#CFC8B8] hover:border-[#16253D] bg-[#F6F3EC] p-4 rounded-2xl flex flex-col items-center justify-center text-center cursor-pointer transition-colors group">
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleFileChange}
-                disabled={isUploading}
-                className="sr-only"
-              />
-
-              {isUploading ? (
-                <div className="py-4 flex flex-col items-center gap-2">
-                  <Loader2 className="w-7 h-7 text-[#16253D] animate-spin" />
-                  <span className="text-xs font-bold text-[#4B5E7A]">
-                    Memproses & mengunggah bukti ke server...
-                  </span>
+            {/* COD Details Display */}
+            {paymentMethod === "COD" && paymentSettings.isCodActive && (
+              <div className="p-4 bg-[#F6F3EC] rounded-2xl border border-[#E2DDD2] space-y-2">
+                <div className="flex items-center gap-2 text-xs font-black text-[#16253D]">
+                  <Banknote className="w-4 h-4 text-[#25D366]" />
+                  <span>Bayar di Tempat (COD / Tunai)</span>
                 </div>
-              ) : proofToken && proofPreviewUrl ? (
-                <div className="py-2 flex flex-col items-center gap-2">
-                  <div className="relative w-28 h-28 rounded-xl overflow-hidden border-2 border-[#15803D] shadow-sm">
-                    <Image
-                      src={proofPreviewUrl}
-                      alt="Preview Bukti"
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                  <div className="flex items-center gap-1.5 text-xs font-black text-[#15803D]">
-                    <CheckCircle2 className="w-4 h-4" />
-                    <span>Bukti berhasil diunggah (Link aktif)</span>
-                  </div>
-                  <span className="text-[10px] text-[#877259]">
-                    Klik kotak untuk mengganti foto
-                  </span>
-                </div>
-              ) : (
-                <div className="py-4 flex flex-col items-center gap-1.5">
-                  <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-[#16253D] shadow-2xs group-hover:scale-110 transition-transform border border-[#E2DDD2]">
-                    <Upload className="w-5 h-5" />
-                  </div>
-                  <span className="text-xs font-black text-[#16253D]">
-                    Pilih Screenshot / Foto Struk Bayar
-                  </span>
-                  <span className="text-[11px] text-[#877259]">
-                    JPG, PNG, WEBP (Maksimal 10MB)
-                  </span>
-                </div>
-              )}
-            </label>
-
-            {uploadError && (
-              <div className="bg-red-50 border border-red-200 text-red-700 text-xs p-3 rounded-xl font-bold flex items-center gap-2">
-                <AlertCircle className="w-4 h-4 shrink-0" />
-                <span>{uploadError}</span>
+                <p className="text-xs text-[#4B5E7A] leading-relaxed">
+                  {paymentSettings.codNotes ||
+                    "Bayar tunai/cash langsung saat pesanan diambil di toko atau diantar ke alamat Anda."}
+                </p>
               </div>
             )}
           </div>
+
+          {/* 3. UPLOAD BUKTI PEMBAYARAN */}
+          {paymentMethod === "COD" ? (
+            <div className="bg-[#F0FDF4] p-4 sm:p-5 rounded-2xl border border-[#DCFCE7] space-y-1.5">
+              <div className="flex items-center gap-2 text-xs sm:text-sm font-black text-[#15803D]">
+                <CheckCircle2 className="w-4 h-4 shrink-0" />
+                <span>Metode Bayar di Tempat (COD) Dipilih</span>
+              </div>
+              <p className="text-xs text-[#166534] leading-relaxed">
+                Anda tidak perlu mengunggah foto bukti transfer. Pembayaran dilakukan secara tunai/cash saat pesanan diterima.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-3 bg-white p-4 sm:p-5 rounded-2xl border border-[#E2DDD2]">
+              <div className="flex items-center justify-between">
+                <h3 className="font-black text-xs sm:text-sm text-[#16253D] uppercase tracking-wider">
+                  3. Upload Bukti Pembayaran
+                </h3>
+                <span className="text-[11px] text-[#877259] font-bold">
+                  (Opsional / Bisa kirim di WA)
+                </span>
+              </div>
+
+              {/* Dropzone Container */}
+              <label className="relative border-2 border-dashed border-[#CFC8B8] hover:border-[#16253D] bg-[#F6F3EC] p-4 rounded-2xl flex flex-col items-center justify-center text-center cursor-pointer transition-colors group">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileChange}
+                  disabled={isUploading}
+                  className="sr-only"
+                />
+
+                {isUploading ? (
+                  <div className="py-4 flex flex-col items-center gap-2">
+                    <Loader2 className="w-7 h-7 text-[#16253D] animate-spin" />
+                    <span className="text-xs font-bold text-[#4B5E7A]">
+                      Memproses & mengunggah bukti ke server...
+                    </span>
+                  </div>
+                ) : proofToken && proofPreviewUrl ? (
+                  <div className="py-2 flex flex-col items-center gap-2">
+                    <div className="relative w-28 h-28 rounded-xl overflow-hidden border-2 border-[#15803D] shadow-sm">
+                      <Image
+                        src={proofPreviewUrl}
+                        alt="Preview Bukti"
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                    <div className="flex items-center gap-1.5 text-xs font-black text-[#15803D]">
+                      <CheckCircle2 className="w-4 h-4" />
+                      <span>Bukti berhasil diunggah (Link aktif)</span>
+                    </div>
+                    <span className="text-[10px] text-[#877259]">
+                      Klik kotak untuk mengganti foto
+                    </span>
+                  </div>
+                ) : (
+                  <div className="py-4 flex flex-col items-center gap-1.5">
+                    <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-[#16253D] shadow-2xs group-hover:scale-110 transition-transform border border-[#E2DDD2]">
+                      <Upload className="w-5 h-5" />
+                    </div>
+                    <span className="text-xs font-black text-[#16253D]">
+                      Pilih Screenshot / Foto Struk Bayar
+                    </span>
+                    <span className="text-[11px] text-[#877259]">
+                      JPG, PNG, WEBP (Maksimal 10MB)
+                    </span>
+                  </div>
+                )}
+              </label>
+
+              {uploadError && (
+                <div className="bg-red-50 border border-red-200 text-red-700 text-xs p-3 rounded-xl font-bold flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 shrink-0" />
+                  <span>{uploadError}</span>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Sticky Submit Bottom Bar (Always visible) */}

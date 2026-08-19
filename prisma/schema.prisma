@@ -122,6 +122,8 @@ model PaymentSettings {
   qrisNmid      String?
   isQrisActive  Boolean  @default(true)
   isBankActive  Boolean  @default(true)
+  isCodActive   Boolean  @default(true)
+  codNotes      String?  @default("Bayar tunai/cash langsung saat pesanan diambil atau diantar.")
   updatedAt     DateTime @updatedAt
 }
 

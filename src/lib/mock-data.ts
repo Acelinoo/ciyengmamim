@@ -42,6 +42,8 @@ export const INITIAL_PAYMENT_SETTINGS: PaymentSettingsType = {
   qrisNmid: "ID1020030040050",
   isBankActive: true,
   isQrisActive: true,
+  isCodActive: true,
+  codNotes: "Bayar tunai/cash langsung saat pesanan diambil atau diantar.",
 };
 
 export const INITIAL_PRODUCTS: ProductItem[] = [
