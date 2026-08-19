@@ -1,26 +1,100 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    /* Exact colors from Gambar 1 & Gambar 2 */
+    --bg-broken-white: #F6F3EC;
+    --bg-surface: #FFFFFF;
+    --bg-surface-alt: #EFECE3;
+    --border-soft: #E2DDD2;
+    --border-medium: #CFC8B8;
+    --border-accent: #877259;
+
+    /* Deep Brand Navy (from logo silhouette & headers) */
+    --navy-darkest: #0E1B2E;
+    --navy-deep: #16253D;
+    --navy-primary: #1D2D44;
+    --navy-secondary: #2C3E5A;
+    --navy-muted: #4B5E7A;
+    --navy-light: #EBF1F8;
+
+    /* Earthy Mocha Brown (from logo dress & promo capsules) */
+    --brown-mocha: #7D5836;
+    --brown-taupe: #877259;
+    --brown-soft: #F4EFE6;
+
+    /* Golden Mustard (from Paket A promo badge) */
+    --accent-mustard: #EAA623;
+    --accent-mustard-hover: #D89515;
+    --accent-mustard-light: #FEF7E6;
+
+    /* Culinary Accents */
+    --accent-chili: #D83A2E;
+    --accent-green: #15803D;
+  }
+
+  body {
+    background-color: var(--bg-broken-white);
+    color: var(--navy-deep);
+    font-family: var(--font-sans, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif);
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  /* Custom Smooth Scroll */
+  html {
+    scroll-behavior: smooth;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Brand Neo-Gourmet Card & Pill Utilities */
+.food-pill {
+  border-radius: 9999px;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.food-pill:hover {
+  transform: translateY(-2px);
+}
+
+.food-card {
+  border-radius: 1.5rem;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 20px -2px rgba(22, 37, 61, 0.05);
+}
+
+.food-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 14px 30px -4px rgba(22, 37, 61, 0.12);
+}
+
+.glow-navy {
+  box-shadow: 0 8px 25px -4px rgba(22, 37, 61, 0.35);
+}
+
+.glow-mocha {
+  box-shadow: 0 8px 25px -4px rgba(125, 88, 54, 0.35);
+}
+
+.glow-mustard {
+  box-shadow: 0 8px 25px -4px rgba(234, 166, 35, 0.4);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #F6F3EC;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #CFC8B8;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #B3ABA0;
 }

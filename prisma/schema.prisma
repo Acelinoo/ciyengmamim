@@ -1,0 +1,143 @@
+datasource db {
+  provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// 1. Admin User for Dashboard Authentication
+model AdminUser {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  password  String   // Hashed with argon2id / bcrypt-ts (NOT plaintext)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// 2. Admin Audit Log (Keamanan Aktivitas Sensitif)
+model AdminAuditLog {
+  id         String   @id @default(cuid())
+  adminEmail String
+  action     String   // e.g. "UPDATE_PAYMENT_CONFIG", "DELETE_PRODUCT", "CHANGE_PRICE"
+  resource   String   // e.g. "PaymentSettings", "Product:clx123"
+  details    String?  // JSON stringified summary of change
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
+
+  @@index([adminEmail])
+  @@index([createdAt])
+}
+
+// 3. Store Profile & Contact Information (Single-row Settings)
+model StoreSettings {
+  id              String   @id @default("default_store")
+  storeName       String   @default("Ciyeng Mamim")
+  tagline         String?  @default("Cireng Crispy Renyah dengan Aneka Saus Spesial")
+  logoUrl         String?
+  whatsappNumber  String   @default("6281234567890") // Format internasional tanpa + atau spasi
+  instagramHandle String?  @default("ciyengmamim")
+  instagramUrl    String?
+  address         String?  @default("Jl. Raya Cireng No. 8, Jakarta")
+  mapsUrl         String?
+  mapsEmbedUrl    String?
+  updatedAt       DateTime @updatedAt
+}
+
+// 4. Operational Hours & Live Store Status (Single-row Settings)
+model OperationalSettings {
+  id             String   @id @default("default_operational")
+  isStoreOpen    Boolean  @default(true) // Manual Master Override
+  autoSchedule   Boolean  @default(true) // Enable/Disable automatic hours check
+  openTime       String   @default("10:00") // Format HH:mm (WIB)
+  closeTime      String   @default("21:00") // Format HH:mm (WIB)
+  closedDays     String[] @default(["Senin"]) // Array hari libur, misal: ["Senin"]
+  closedMessage  String?  @default("Toko sedang tutup. Kami kembali melayani di jam operasional.")
+  updatedAt      DateTime @updatedAt
+}
+
+// 5. Products / Menu Items
+model Product {
+  id          String          @id @default(cuid())
+  name        String
+  slug        String          @unique
+  description String?
+  price       Int             // Dalam satuan Rupiah penuh (contoh: 15000)
+  imageUrl    String
+  isAvailable Boolean         @default(true)
+  sortOrder   Int             @default(0)
+  variants    VariantOption[] // Pilihan varian (cth: Original, Pedas, Keju)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+}
+
+// Sub-entity: Pilihan Varian Produk
+model VariantOption {
+  id        String   @id @default(cuid())
+  name      String   // Misal: "Original", "Extra Bumbu Pedas"
+  price     Int      @default(0) // Tambahan harga jika ada
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+// 6. Package Bundling Items
+model Package {
+  id             String   @id @default(cuid())
+  name           String   // Misal: "Paket Puas A", "Paket Rame-Rame"
+  slug           String   @unique
+  description    String?
+  price          Int      // Total harga paket
+  imageUrl       String
+  packageItems   String[] // Array teks isi paket, cth: ["10x Cireng Crispy", "1x Saus Taichan", "1x Saus Creamy"]
+  includedSauces String[] // Daftar saus bawaan yang didapat (bisa dipilih customer)
+  isAvailable    Boolean  @default(true)
+  sortOrder      Int      @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+// 7. Add-ons & Extra Sauces
+model AddOn {
+  id          String   @id @default(cuid())
+  name        String   // Misal: "Saus Taichan Pedas", "Creamy Cheese", "Creamy Ranch"
+  description String?
+  price       Int      // Harga satuan add-on (misal: 4000)
+  imageUrl    String?
+  isAvailable Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// 8. Payment Configurations (Single-row Settings)
+model PaymentSettings {
+  id            String   @id @default("default_payment")
+  // Bank Transfer Configuration
+  bankName      String   @default("BCA")
+  accountNumber String   @default("1234567890")
+  accountHolder String   @default("CIYENG MAMIM")
+  bankNotes     String?  @default("Mohon transfer sesuai total tagihan.")
+  
+  // QRIS Configuration
+  qrisImageUrl  String?  // URL gambar QRIS untuk di-scan
+  qrisNmid      String?  // Optional NMID QRIS
+  isQrisActive  Boolean  @default(true)
+  isBankActive  Boolean  @default(true)
+  updatedAt     DateTime @updatedAt
+}
+
+// 9. Ephemeral Payment Proof Metadata (Private Storage + Expiring Token)
+model PaymentProof {
+  id          String   @id @default(cuid())
+  accessToken String   @unique @default(cuid()) // Unpredictable Token untuk URL WhatsApp
+  filePath    String   // Storage private bucket path
+  fileSize    Int      // Bytes
+  mimeType    String   // image/jpeg, image/png, image/webp
+  uploadedAt  DateTime @default(now())
+  expiresAt   DateTime // Retention TTL (14 hari setelah upload untuk auto-cleanup)
+
+  @@index([accessToken])
+  @@index([expiresAt])
+}
