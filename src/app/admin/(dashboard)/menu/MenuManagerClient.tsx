@@ -1,14 +1,24 @@
 "use client";
 
-import { useState, useTransition } from "react";
-import { ProductItem, VariantOptionType } from "@/types";
+import { useState, useTransition, useRef } from "react";
+import { ProductItem } from "@/types";
 import { formatRupiah } from "@/lib/whatsapp";
 import {
   saveProductAction,
   deleteProductAction,
   toggleProductAvailabilityAction,
 } from "@/app/actions/admin";
-import { Plus, Edit2, Trash2, Check, X, Loader2, AlertCircle } from "lucide-react";
+import {
+  Plus,
+  Edit2,
+  Trash2,
+  X,
+  Loader2,
+  AlertCircle,
+  Upload,
+  CheckCircle2,
+  ImageIcon,
+} from "lucide-react";
 import Image from "next/image";
 
 export function MenuManagerClient({
@@ -20,10 +30,14 @@ export function MenuManagerClient({
   const [editingProduct, setEditingProduct] = useState<ProductItem | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
   const [feedbackMessage, setFeedbackMessage] = useState<{
     type: "success" | "error";
     text: string;
   } | null>(null);
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Form states
   const [name, setName] = useState("");
@@ -39,10 +53,11 @@ export function MenuManagerClient({
     setName("");
     setSlug("");
     setDescription("");
-    setPrice(15000);
-    setImageUrl("https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?auto=format&fit=crop&w=600&q=80");
+    setPrice(3500);
+    setImageUrl("/images/cireng-ayam-rica.jpg");
     setIsAvailable(true);
     setVariants([]);
+    setUploadError(null);
     setIsModalOpen(true);
   };
 
@@ -55,6 +70,7 @@ export function MenuManagerClient({
     setImageUrl(product.imageUrl);
     setIsAvailable(product.isAvailable);
     setVariants(product.variants ? [...product.variants] : []);
+    setUploadError(null);
     setIsModalOpen(true);
   };
 
@@ -68,12 +84,23 @@ export function MenuManagerClient({
 
   const handleToggleStock = (product: ProductItem) => {
     const newStatus = !product.isAvailable;
+    // Update local state immediately for instant feedback
+    setProducts((prev) =>
+      prev.map((p) => (p.id === product.id ? { ...p, isAvailable: newStatus } : p))
+    );
+
     startTransition(async () => {
       const res = await toggleProductAvailabilityAction(product.id, newStatus);
       if (res.success) {
-        setProducts((prev) =>
-          prev.map((p) => (p.id === product.id ? { ...p, isAvailable: newStatus } : p))
-        );
+        setFeedbackMessage({
+          type: "success",
+          text: `Menu "${product.name}" berhasil ditandai ${newStatus ? "Tersedia" : "Habis"}.`,
+        });
+      } else {
+        setFeedbackMessage({
+          type: "error",
+          text: res.error || "Gagal mengubah status stok.",
+        });
       }
     });
   };
@@ -81,10 +108,10 @@ export function MenuManagerClient({
   const handleDelete = (id: string) => {
     if (!confirm("Apakah Anda yakin ingin menghapus menu ini?")) return;
 
+    setProducts((prev) => prev.filter((p) => p.id !== id));
     startTransition(async () => {
       const res = await deleteProductAction(id);
       if (res.success) {
-        setProducts((prev) => prev.filter((p) => p.id !== id));
         setFeedbackMessage({ type: "success", text: "Menu berhasil dihapus." });
       } else {
         setFeedbackMessage({ type: "error", text: res.error || "Gagal menghapus menu." });
@@ -92,72 +119,111 @@ export function MenuManagerClient({
     });
   };
 
+  const handleImageFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploadingImage(true);
+    setUploadError(null);
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const res = await fetch("/api/upload/menu-image", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await res.json();
+
+      if (!res.ok || !data.success || !data.url) {
+        throw new Error(data.error || "Gagal mengunggah foto menu.");
+      }
+
+      setImageUrl(data.url);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Gagal mengunggah gambar.";
+      setUploadError(msg);
+    } finally {
+      setIsUploadingImage(false);
+    }
+  };
+
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
     setFeedbackMessage(null);
 
+    const generatedSlug =
+      slug.trim() ||
+      name
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/(^-|-$)/g, "");
+
     const payload = {
       id: editingProduct?.id,
       name: name.trim(),
-      slug: slug.trim() || name.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
+      slug: generatedSlug,
       description: description.trim(),
       price: Number(price),
-      imageUrl: imageUrl.trim(),
+      imageUrl: imageUrl.trim() || "/images/cireng-ayam-rica.jpg",
       isAvailable,
-      sortOrder: 0,
-      variants: variants.filter((v) => v.name.trim() !== ""),
+      sortOrder: editingProduct?.sortOrder || 0,
+      variants: variants.filter((v) => v.name.trim().length > 0),
     };
 
     startTransition(async () => {
       const res = await saveProductAction(payload);
-      if (res.success) {
+      if (res.success && res.product) {
         setIsModalOpen(false);
         setFeedbackMessage({
           type: "success",
-          text: editingProduct ? "Menu berhasil diperbarui!" : "Menu baru berhasil ditambahkan!",
+          text: `Menu "${name}" berhasil disimpan!`,
         });
-        // Optimistic update
+
         if (editingProduct) {
           setProducts((prev) =>
             prev.map((p) => (p.id === editingProduct.id ? (res.product as ProductItem) : p))
           );
-        } else if (res.product) {
+        } else {
           setProducts((prev) => [...prev, res.product as ProductItem]);
         }
       } else {
-        setFeedbackMessage({
-          type: "error",
-          text: res.error || "Gagal menyimpan menu.",
-        });
+        setFeedbackMessage({ type: "error", text: res.error || "Gagal menyimpan menu." });
       }
     });
   };
 
   return (
     <div className="space-y-4">
-      {/* Action Bar */}
+      {/* Header Bar */}
       <div className="flex items-center justify-between">
-        <span className="text-xs sm:text-sm font-bold text-[#6B685F]">
+        <span className="text-xs sm:text-sm font-bold text-[#877259]">
           Total {products.length} Menu Cireng
         </span>
         <button
           onClick={handleOpenAddModal}
-          className="flex items-center gap-1.5 px-4 py-2.5 bg-[#E23E28] hover:bg-[#C82813] text-white rounded-full font-bold text-xs sm:text-sm shadow-sm active:scale-95 transition-all"
+          className="flex items-center gap-1.5 px-4 py-2.5 bg-[#16253D] hover:bg-[#1D2D44] text-white rounded-full font-black text-xs sm:text-sm shadow-md active:scale-95 transition-all border border-[#2C3E5A]"
         >
           <Plus className="w-4 h-4" />
           <span>Tambah Menu Baru</span>
         </button>
       </div>
 
+      {/* Feedback Toast Banner */}
       {feedbackMessage && (
         <div
           className={`p-3.5 rounded-2xl text-xs sm:text-sm font-bold flex items-center gap-2 ${
             feedbackMessage.type === "success"
-              ? "bg-[#EBF7EE] text-[#1E562A] border border-[#D4EED8]"
+              ? "bg-[#F0FDF4] text-[#15803D] border border-[#DCFCE7]"
               : "bg-red-50 text-red-700 border border-red-200"
           }`}
         >
-          <AlertCircle className="w-4 h-4 shrink-0" />
+          {feedbackMessage.type === "success" ? (
+            <CheckCircle2 className="w-4 h-4 shrink-0" />
+          ) : (
+            <AlertCircle className="w-4 h-4 shrink-0" />
+          )}
           <span>{feedbackMessage.text}</span>
         </div>
       )}
@@ -167,21 +233,28 @@ export function MenuManagerClient({
         {products.map((product) => (
           <div
             key={product.id}
-            className="bg-white p-4 rounded-2xl border border-[#EFEBE0] shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+            className="bg-white p-4 rounded-2xl border border-[#E2DDD2] shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4"
           >
             <div className="flex items-center gap-3.5">
-              <div className="relative w-14 h-14 rounded-xl overflow-hidden bg-[#FAF7EE] shrink-0 border border-[#EFEBE0]">
+              <div className="relative w-14 h-14 rounded-xl overflow-hidden bg-[#F6F3EC] shrink-0 border border-[#E2DDD2]">
                 <Image src={product.imageUrl} alt={product.name} fill className="object-cover" />
               </div>
               <div>
-                <h3 className="font-extrabold text-sm sm:text-base text-[#1E1D1A]">
-                  {product.name}
-                </h3>
-                <span className="text-xs font-black text-[#E23E28]">
+                <div className="flex items-center gap-2">
+                  <h3 className="font-black text-sm sm:text-base text-[#16253D]">
+                    {product.name}
+                  </h3>
+                  {!product.isAvailable && (
+                    <span className="px-2 py-0.5 bg-[#FEF2F2] text-[#D83A2E] border border-[#FEE2E2] text-[10px] font-black rounded-full">
+                      Habis
+                    </span>
+                  )}
+                </div>
+                <span className="text-xs font-black text-[#16253D] block">
                   {formatRupiah(product.price)}
                 </span>
                 {product.variants && product.variants.length > 0 && (
-                  <span className="text-[11px] text-[#8A8679] block">
+                  <span className="text-[11px] text-[#877259] block">
                     {product.variants.length} Varian Rasa
                   </span>
                 )}
@@ -228,66 +301,120 @@ export function MenuManagerClient({
         ))}
       </div>
 
-      {/* Create / Edit Modal */}
+      {/* Create / Edit Modal with Gallery Upload */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-sm">
-          <div className="bg-white w-full max-w-lg rounded-3xl p-5 sm:p-6 shadow-2xl border border-[#EFEBE0] max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between pb-4 border-b border-[#EFEBE0] mb-4">
-              <h2 className="font-extrabold text-base sm:text-lg text-[#1E1D1A]">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-[#16253D]/70 backdrop-blur-sm animate-fade-in">
+          <div className="bg-white w-full max-w-lg rounded-3xl p-5 sm:p-6 shadow-2xl border border-[#E2DDD2] max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between pb-4 border-b border-[#E2DDD2] mb-4">
+              <h2 className="font-black text-base sm:text-lg text-[#16253D] font-display">
                 {editingProduct ? "Ubah Menu Cireng" : "Tambah Menu Cireng Baru"}
               </h2>
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="w-8 h-8 rounded-full bg-[#FAF7EE] text-[#1E1D1A] flex items-center justify-center"
+                className="w-8 h-8 rounded-full bg-[#F6F3EC] hover:bg-[#E2DDD2] text-[#16253D] flex items-center justify-center transition-colors"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
             <form onSubmit={handleSave} className="space-y-4">
+              {/* Foto Menu Upload dari Galeri HP / PC */}
+              <div className="space-y-2 bg-[#F6F3EC] p-3.5 rounded-2xl border border-[#E2DDD2]">
+                <label className="block text-xs font-bold text-[#4B5E7A]">
+                  Foto Menu (Dari Galeri HP / PC) *
+                </label>
+
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  accept="image/*"
+                  onChange={handleImageFileSelect}
+                  className="sr-only"
+                />
+
+                <div className="flex items-center gap-3">
+                  <div className="relative w-20 h-20 rounded-xl overflow-hidden bg-white border border-[#CFC8B8] shrink-0 flex items-center justify-center">
+                    {imageUrl ? (
+                      <Image src={imageUrl} alt="Preview Foto" fill className="object-cover" unoptimized />
+                    ) : (
+                      <ImageIcon className="w-8 h-8 text-[#877259]" />
+                    )}
+                  </div>
+
+                  <div className="flex-1 space-y-1.5">
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={isUploadingImage}
+                      className="px-4 py-2 bg-white hover:bg-[#E2DDD2] text-[#16253D] border border-[#CFC8B8] rounded-xl text-xs font-black flex items-center gap-2 transition-colors shadow-2xs"
+                    >
+                      {isUploadingImage ? (
+                        <>
+                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                          <span>Mengunggah Foto...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Upload className="w-3.5 h-3.5" />
+                          <span>Pilih Foto dari Galeri HP / PC</span>
+                        </>
+                      )}
+                    </button>
+                    <span className="text-[10px] text-[#877259] block">
+                      Format JPG, PNG, WEBP (Otomatis dikompresi)
+                    </span>
+                  </div>
+                </div>
+
+                {uploadError && (
+                  <p className="text-xs text-red-600 font-bold">{uploadError}</p>
+                )}
+              </div>
+
               <div>
-                <label className="block text-xs font-bold text-[#525048] mb-1">
+                <label className="block text-xs font-bold text-[#4B5E7A] mb-1">
                   Nama Menu *
                 </label>
                 <input
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="Contoh: Cireng Crispy Original"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-[#D9D2C1] text-xs sm:text-sm bg-[#FAF7EE]"
+                  placeholder="Contoh: Ayam Rica"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-[#CFC8B8] text-xs sm:text-sm bg-[#F6F3EC] text-[#16253D] focus:outline-none focus:ring-2 focus:ring-[#16253D]"
                   required
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-[#525048] mb-1">
+                  <label className="block text-xs font-bold text-[#4B5E7A] mb-1">
                     Harga Satuan (Rp) *
                   </label>
                   <input
                     type="number"
                     value={price}
                     onChange={(e) => setPrice(Number(e.target.value))}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-[#D9D2C1] text-xs sm:text-sm bg-[#FAF7EE]"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-[#CFC8B8] text-xs sm:text-sm bg-[#F6F3EC] text-[#16253D] focus:outline-none focus:ring-2 focus:ring-[#16253D]"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-[#525048] mb-1">
-                    Slug URL
+                  <label className="block text-xs font-bold text-[#4B5E7A] mb-1">
+                    Status Ketersediaan
                   </label>
-                  <input
-                    type="text"
-                    value={slug}
-                    onChange={(e) => setSlug(e.target.value)}
-                    placeholder="cireng-crispy-ori"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-[#D9D2C1] text-xs sm:text-sm bg-[#FAF7EE]"
-                  />
+                  <select
+                    value={isAvailable ? "available" : "sold_out"}
+                    onChange={(e) => setIsAvailable(e.target.value === "available")}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-[#CFC8B8] text-xs sm:text-sm bg-[#F6F3EC] text-[#16253D] focus:outline-none focus:ring-2 focus:ring-[#16253D]"
+                  >
+                    <option value="available">🟢 Tersedia</option>
+                    <option value="sold_out">🔴 Habis (Sold Out)</option>
+                  </select>
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-[#525048] mb-1">
+                <label className="block text-xs font-bold text-[#4B5E7A] mb-1">
                   Deskripsi Menu
                 </label>
                 <textarea
@@ -295,34 +422,20 @@ export function MenuManagerClient({
                   onChange={(e) => setDescription(e.target.value)}
                   rows={2}
                   placeholder="Deskripsi rasa cireng..."
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-[#D9D2C1] text-xs sm:text-sm bg-[#FAF7EE]"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-[#525048] mb-1">
-                  URL Foto Produk *
-                </label>
-                <input
-                  type="url"
-                  value={imageUrl}
-                  onChange={(e) => setImageUrl(e.target.value)}
-                  placeholder="https://..."
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-[#D9D2C1] text-xs sm:text-sm bg-[#FAF7EE]"
-                  required
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-[#CFC8B8] text-xs sm:text-sm bg-[#F6F3EC] text-[#16253D] focus:outline-none focus:ring-2 focus:ring-[#16253D]"
                 />
               </div>
 
               {/* Variants Setup */}
-              <div className="pt-2 border-t border-[#EFEBE0]">
+              <div className="pt-2 border-t border-[#E2DDD2]">
                 <div className="flex items-center justify-between mb-2">
-                  <label className="text-xs font-bold text-[#525048]">
+                  <label className="text-xs font-bold text-[#4B5E7A]">
                     Pilihan Varian Rasa (Opsional)
                   </label>
                   <button
                     type="button"
                     onClick={handleAddVariant}
-                    className="text-xs font-bold text-[#E23E28] hover:underline"
+                    className="text-xs font-bold text-[#16253D] hover:underline"
                   >
                     + Tambah Varian
                   </button>
@@ -338,8 +451,8 @@ export function MenuManagerClient({
                           updated[idx].name = e.target.value;
                           setVariants(updated);
                         }}
-                        placeholder="Nama varian (cth: Pedas Daun Jeruk)"
-                        className="flex-1 px-3 py-2 rounded-xl border border-[#D9D2C1] text-xs bg-[#FAF7EE]"
+                        placeholder="Nama varian (cth: Pedas Sedang)"
+                        className="flex-1 px-3 py-2 rounded-xl border border-[#CFC8B8] text-xs bg-[#F6F3EC] text-[#16253D]"
                       />
                       <input
                         type="number"
@@ -349,13 +462,13 @@ export function MenuManagerClient({
                           updated[idx].price = Number(e.target.value);
                           setVariants(updated);
                         }}
-                        placeholder="+Harga (cth: 2000)"
-                        className="w-24 px-3 py-2 rounded-xl border border-[#D9D2C1] text-xs bg-[#FAF7EE]"
+                        placeholder="+Harga"
+                        className="w-24 px-3 py-2 rounded-xl border border-[#CFC8B8] text-xs bg-[#F6F3EC] text-[#16253D]"
                       />
                       <button
                         type="button"
                         onClick={() => handleRemoveVariant(idx)}
-                        className="text-red-500 p-1"
+                        className="text-red-500 p-1 hover:bg-red-50 rounded-lg"
                       >
                         <X className="w-4 h-4" />
                       </button>
@@ -364,18 +477,18 @@ export function MenuManagerClient({
                 </div>
               </div>
 
-              <div className="pt-4 flex items-center justify-end gap-2 border-t border-[#EFEBE0]">
+              <div className="pt-4 flex items-center justify-end gap-2 border-t border-[#E2DDD2]">
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2.5 rounded-full border border-[#D9D2C1] text-xs font-bold text-[#525048]"
+                  className="px-5 py-2.5 rounded-full border border-[#CFC8B8] text-xs font-bold text-[#4B5E7A] hover:bg-[#F6F3EC]"
                 >
                   Batal
                 </button>
                 <button
                   type="submit"
-                  disabled={isPending}
-                  className="px-6 py-2.5 rounded-full bg-[#1E1D1A] text-white text-xs font-extrabold hover:bg-[#33312B] flex items-center gap-2"
+                  disabled={isPending || isUploadingImage}
+                  className="px-6 py-2.5 rounded-full bg-[#16253D] hover:bg-[#1D2D44] text-white text-xs font-black flex items-center gap-2 border border-[#2C3E5A]"
                 >
                   {isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : "Simpan Menu"}
                 </button>

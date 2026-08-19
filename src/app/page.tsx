@@ -3,7 +3,8 @@ import { calculateOperationalStatus } from "@/lib/operational";
 import { StoreClientView } from "@/components/public/StoreClientView";
 import { Metadata } from "next";
 
-export const revalidate = 60; // ISR revalidation setiap 60 detik
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export async function generateMetadata(): Promise<Metadata> {
   const { store } = await getPublicStoreData();
