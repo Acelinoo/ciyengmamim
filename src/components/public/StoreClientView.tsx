@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import dynamic from "next/dynamic";
 import {
   ProductItem,
   PackageItem,
@@ -20,21 +19,9 @@ import { PackageCard } from "./PackageCard";
 import { StoreFooter } from "./StoreFooter";
 import { formatRupiah } from "@/lib/whatsapp";
 
-// Lazy-load heavy modals (Not needed on initial page load / TBT optimization)
-const ProductCustomizerModal = dynamic(
-  () => import("./ProductCustomizerModal").then((mod) => mod.ProductCustomizerModal),
-  { ssr: false }
-);
-
-const CartDrawer = dynamic(
-  () => import("./CartDrawer").then((mod) => mod.CartDrawer),
-  { ssr: false }
-);
-
-const CheckoutModal = dynamic(
-  () => import("./CheckoutModal").then((mod) => mod.CheckoutModal),
-  { ssr: false }
-);
+import { ProductCustomizerModal } from "./ProductCustomizerModal";
+import { CartDrawer } from "./CartDrawer";
+import { CheckoutModal } from "./CheckoutModal";
 
 interface StoreClientViewProps {
   store: StoreSettingsType;

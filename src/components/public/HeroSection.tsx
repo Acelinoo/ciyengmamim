@@ -18,11 +18,12 @@ export function HeroSection() {
       >
         <div className="relative w-40 h-40 sm:w-56 sm:h-56 md:w-64 md:h-64 lg:w-76 lg:h-76 aspect-square rounded-full overflow-hidden shadow-2xl border-2 border-white/80 bg-white">
           <Image
-            src="/images/cireng-bowl.png"
-            alt="Cireng Crispy"
+            src="/images/cireng-bowl.webp"
+            alt="Cireng Crispy Renyah Ciyeng Mamim"
             fill
             sizes="(max-width: 640px) 160px, (max-width: 1024px) 256px, 304px"
             className="object-cover"
+            priority
           />
         </div>
       </div>
@@ -37,7 +38,7 @@ export function HeroSection() {
       >
         <div className="relative w-44 h-44 sm:w-60 sm:h-60 md:w-72 md:h-72 lg:w-84 lg:h-84 aspect-square rounded-full overflow-hidden shadow-2xl border-2 border-white/80 bg-white">
           <Image
-            src="/images/cireng-kuah.jpg"
+            src="/images/cireng-kuah.webp"
             alt="Cireng Kuah Creamy"
             fill
             sizes="(max-width: 640px) 176px, (max-width: 1024px) 288px, 336px"
@@ -53,7 +54,7 @@ export function HeroSection() {
         {/* Brand Avatar Icon from Gambar 1 */}
         <div className="relative w-20 h-20 md:w-24 md:h-24 mx-auto mb-3 rounded-3xl overflow-hidden bg-[#16253D] p-1 shadow-md border-2 border-[#2C3E5A]">
           <Image
-            src="/images/logo.png"
+            src="/images/logo.webp"
             alt="Logo Ciyeng Mamim"
             fill
             sizes="(max-width: 768px) 80px, 96px"

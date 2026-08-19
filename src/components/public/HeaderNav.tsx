@@ -30,7 +30,7 @@ export function HeaderNav({
         >
           <div className="relative w-11 h-11 md:w-13 md:h-13 rounded-2xl overflow-hidden bg-[#16253D] shadow-sm transform group-hover:scale-105 transition-transform border border-[#2C3E5A] p-0.5 shrink-0">
             <Image
-              src="/images/logo.png"
+              src="/images/logo.webp"
               alt="Logo Ciyeng Mamim"
               fill
               sizes="52px"

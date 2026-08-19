@@ -11,7 +11,7 @@ export const INITIAL_STORE_SETTINGS: StoreSettingsType = {
   id: "default_store",
   storeName: "Ciyeng Mamim",
   tagline: "Balikin Mood with Good Food",
-  logoUrl: "/images/logo.png",
+  logoUrl: "/images/logo.webp",
   whatsappNumber: "6289676636637",
   instagramHandle: "ciyengmamim",
   instagramUrl: "https://instagram.com/ciyengmamim",
@@ -53,7 +53,7 @@ export const INITIAL_PRODUCTS: ProductItem[] = [
     slug: "ayam-rica",
     description: "Ayam Suir Pedas Gurih Dengan Rempah Pilihan",
     price: 3500,
-    imageUrl: "/images/cireng-ayam-rica.jpg",
+    imageUrl: "/images/cireng-ayam-rica.webp",
     isAvailable: true,
     sortOrder: 1,
     variants: [
@@ -67,7 +67,7 @@ export const INITIAL_PRODUCTS: ProductItem[] = [
     slug: "sapi-teriyaki",
     description: "Daging Sapi Pedas Manis Dengan Rempah Pilihan",
     price: 4500,
-    imageUrl: "/images/cireng-sapi-teriyaki.jpg",
+    imageUrl: "/images/cireng-sapi-teriyaki.webp",
     isAvailable: true,
     sortOrder: 2,
     variants: [
@@ -81,7 +81,7 @@ export const INITIAL_PRODUCTS: ProductItem[] = [
     slug: "paru-rica",
     description: "Daging Paru Pedas Nampol, Cireng Isi Pertama Dengan Rasa Paru Rica",
     price: 4000,
-    imageUrl: "/images/cireng-paru-rica.jpg",
+    imageUrl: "/images/cireng-paru-rica.webp",
     isAvailable: true,
     sortOrder: 3,
     variants: [
@@ -95,7 +95,7 @@ export const INITIAL_PRODUCTS: ProductItem[] = [
     slug: "pizza",
     description: "Potongan Sosis Dengan Sauce Bolognese Tidak Terlalu Pedas",
     price: 3500,
-    imageUrl: "/images/cireng-pizza.jpg",
+    imageUrl: "/images/cireng-pizza.webp",
     isAvailable: true,
     sortOrder: 4,
     variants: [
@@ -109,7 +109,7 @@ export const INITIAL_PRODUCTS: ProductItem[] = [
     slug: "keju",
     description: "Parutan Keju Cheddar Yg Gurih Dan Nikmat",
     price: 3500,
-    imageUrl: "/images/cireng-keju.jpg",
+    imageUrl: "/images/cireng-keju.webp",
     isAvailable: true,
     sortOrder: 5,
     variants: [
@@ -126,7 +126,7 @@ export const INITIAL_PACKAGES: PackageItem[] = [
     slug: "paket-a",
     description: "3 PCS CIRENG BEBAS PILIH",
     price: 10000,
-    imageUrl: "/images/paket-cireng.jpg",
+    imageUrl: "/images/paket-cireng.webp",
     packageItems: [
       "3 PCS Cireng Bebas Pilih",
       "Termasuk Creamy Ranch Sauce",
@@ -142,7 +142,7 @@ export const INITIAL_PACKAGES: PackageItem[] = [
     slug: "paket-b",
     description: "5 PCS CIRENG BEBAS PILIH",
     price: 15000,
-    imageUrl: "/images/paket-cireng.jpg",
+    imageUrl: "/images/paket-cireng.webp",
     packageItems: [
       "5 PCS Cireng Bebas Pilih",
       "Termasuk Creamy Ranch Sauce",
@@ -158,7 +158,7 @@ export const INITIAL_PACKAGES: PackageItem[] = [
     slug: "paket-c",
     description: "10 PCS CIRENG BEBAS PILIH",
     price: 30000,
-    imageUrl: "/images/paket-cireng.jpg",
+    imageUrl: "/images/paket-cireng.webp",
     packageItems: [
       "10 PCS Cireng Bebas Pilih",
       "Termasuk Creamy Ranch Sauce",

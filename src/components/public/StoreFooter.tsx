@@ -20,7 +20,7 @@ export function StoreFooter({ store, operational }: StoreFooterProps) {
             <div className="flex items-center gap-3">
               <div className="relative w-11 h-11 rounded-2xl overflow-hidden bg-[#16253D] p-0.5 border border-[#2C3E5A] shrink-0">
                 <Image
-                  src="/images/logo.png"
+                  src="/images/logo.webp"
                   alt="Logo Ciyeng Mamim"
                   fill
                   sizes="44px"
