@@ -35,10 +35,13 @@ export async function calculateAndVerifyOrder(
       : `Transfer Bank ${payment?.bankName || INITIAL_PAYMENT_SETTINGS.bankName}`;
 
   // 2. Format Bukti Pembayaran
-  let proofUrl = "Akan dikirim langsung via chat WhatsApp";
+  let proofUrl = "Belum diunggah (akan dikirim manual via chat WhatsApp)";
   if (payload.paymentProofToken && payload.paymentProofToken.trim() !== "") {
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-    proofUrl = `${appUrl}/proof/${payload.paymentProofToken.trim()}`;
+    const baseDomain =
+      payload.appOrigin ||
+      process.env.NEXT_PUBLIC_APP_URL ||
+      "http://localhost:3000";
+    proofUrl = `${baseDomain.replace(/\/$/, "")}/proof/${payload.paymentProofToken.trim()}`;
   }
 
   // 3. Kumpulkan seluruh ID produk, paket, dan add-on yang diminta

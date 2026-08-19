@@ -102,6 +102,7 @@ export interface CheckoutPayload {
   customerNotes?: string;
   paymentMethod: "BANK_TRANSFER" | "QRIS";
   paymentProofToken: string;
+  appOrigin?: string;
   items: {
     cartItemId: string;
     id: string;

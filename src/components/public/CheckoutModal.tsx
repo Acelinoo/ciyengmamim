@@ -128,6 +128,7 @@ export function CheckoutModal({
         customerNotes: customerNotes.trim(),
         paymentMethod,
         paymentProofToken: proofToken || "",
+        appOrigin: typeof window !== "undefined" ? window.location.origin : "",
         items: cartItems.map((item) => ({
           cartItemId: item.cartItemId,
           id: item.id,

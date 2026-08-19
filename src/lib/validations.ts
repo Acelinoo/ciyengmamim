@@ -18,6 +18,7 @@ export const CheckoutPayloadSchema = z.object({
     message: "Pilih salah satu metode pembayaran",
   }),
   paymentProofToken: z.string().optional().nullable().default(""),
+  appOrigin: z.string().optional(),
   items: z
     .array(
       z.object({
