@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import fs from "fs";
-import path from "path";
+import { getPrivateFileBuffer } from "@/lib/storage";
+
+export const runtime = "nodejs";
 
 export async function GET(req: NextRequest) {
   const searchParams = req.nextUrl.searchParams;
@@ -10,22 +11,22 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Akses tidak valid" }, { status: 400 });
   }
 
-  const fullPath = path.join(process.cwd(), "public", "uploads", "private", filePath);
-
-  if (!fs.existsSync(fullPath)) {
-    return NextResponse.json({ error: "File tidak ditemukan" }, { status: 404 });
-  }
-
   try {
-    const fileBuffer = await fs.promises.readFile(fullPath);
-    return new NextResponse(fileBuffer, {
+    const fileData = await getPrivateFileBuffer(filePath);
+
+    if (!fileData) {
+      return NextResponse.json({ error: "File tidak ditemukan" }, { status: 404 });
+    }
+
+    return new NextResponse(new Uint8Array(fileData.buffer), {
       headers: {
-        "Content-Type": "image/webp",
+        "Content-Type": fileData.mimeType || "image/webp",
         "Cache-Control": "private, max-age=86400",
         "X-Content-Type-Options": "nosniff",
       },
     });
-  } catch {
+  } catch (err) {
+    console.error("Error serving proof file:", err);
     return NextResponse.json({ error: "Gagal membaca file" }, { status: 500 });
   }
 }

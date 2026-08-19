@@ -8,18 +8,18 @@ import crypto from "crypto";
 
 export const runtime = "nodejs";
 
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
 
 export async function POST(req: NextRequest) {
   try {
-    // 1. Rate Limiting: Maksimal 5 upload per 10 menit per IP
+    // 1. Rate Limiting: 50 upload per 10 menit
     const clientIp =
       req.headers.get("x-forwarded-for")?.split(",")[0] ||
       req.headers.get("x-real-ip") ||
       "anonymous";
 
     const rateLimit = checkRateLimit(`upload-proof:${clientIp}`, {
-      limit: 5,
+      limit: 50,
       windowMs: 10 * 60 * 1000,
     });
 
@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         {
           error:
-            "Terlalu banyak permintaan upload. Harap tunggu beberapa menit sebelum mencoba kembali.",
+            "Terlalu banyak permintaan upload. Harap tunggu beberapa saat sebelum mencoba kembali.",
         },
         { status: 429 }
       );
@@ -47,7 +47,7 @@ export async function POST(req: NextRequest) {
     // 3. Validasi ukuran file
     if (file.size > MAX_FILE_SIZE) {
       return NextResponse.json(
-        { error: "Ukuran file melebihi batas maksimal 5MB." },
+        { error: "Ukuran file melebihi batas maksimal 10MB." },
         { status: 400 }
       );
     }
@@ -55,20 +55,20 @@ export async function POST(req: NextRequest) {
     const arrayBuffer = await file.arrayBuffer();
     const rawBuffer = Buffer.from(arrayBuffer);
 
-    // 4. Validasi Magic Bytes (Keamanan Buffer)
+    // 4. Validasi Magic Bytes
     const magicValidation = validateImageMagicBytes(rawBuffer);
     if (!magicValidation.isValid) {
       return NextResponse.json(
-        { error: magicValidation.error || "Format file tidak didukung." },
+        { error: magicValidation.error || "Format file tidak didukung (gunakan JPG, PNG, WEBP)." },
         { status: 400 }
       );
     }
 
-    // 5. Kompresi & Optimalisasi Gambar menggunakan Sharp (WebP, max 1200px)
+    // 5. Kompresi & Optimalisasi Gambar menggunakan Sharp (WebP)
     let optimizedBuffer: Buffer;
     try {
       optimizedBuffer = await sharp(rawBuffer)
-        .rotate() // Auto-orient dari EXIF kamera smartphone
+        .rotate() // Auto-orient dari EXIF smartphone
         .resize({ width: 1200, height: 1600, fit: "inside", withoutEnlargement: true })
         .webp({ quality: 80 })
         .toBuffer();
@@ -76,13 +76,13 @@ export async function POST(req: NextRequest) {
       optimizedBuffer = rawBuffer;
     }
 
-    // 6. Generate Random UUID filename (Abaikan nama file asli client)
+    // 6. Generate Random UUID filename
     const randomUuid = crypto.randomUUID();
     const safeFilename = `${randomUuid}.webp`;
     const yearMonth = new Date().toISOString().slice(0, 7); // e.g. "2026-08"
     const folder = `proofs/${yearMonth}`;
 
-    // 7. Simpan ke Private Storage
+    // 7. Simpan ke Storage
     const { filePath } = await uploadPrivateFile(
       optimizedBuffer,
       folder,
@@ -96,9 +96,8 @@ export async function POST(req: NextRequest) {
 
     const accessToken = `proof_${crypto.randomBytes(12).toString("hex")}`;
 
-    let savedProof;
     try {
-      savedProof = await db.paymentProof.create({
+      await db.paymentProof.create({
         data: {
           accessToken,
           filePath,
@@ -108,21 +107,22 @@ export async function POST(req: NextRequest) {
         },
       });
     } catch {
-      // Fallback jika DB belum ter-migrate
-      savedProof = { accessToken, filePath };
+      // Fallback jika DB offline
     }
 
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
     return NextResponse.json({
       success: true,
-      token: savedProof.accessToken,
-      previewUrl: `${appUrl}/proof/${savedProof.accessToken}`,
+      token: accessToken,
+      filePath,
+      previewUrl: `${appUrl.replace(/\/$/, "")}/proof/${accessToken}`,
     });
   } catch (error) {
     console.error("Upload proof error:", error);
+    const msg = error instanceof Error ? error.message : "Gagal mengunggah bukti pembayaran.";
     return NextResponse.json(
-      { error: "Gagal mengunggah bukti pembayaran. Silakan coba lagi." },
+      { error: msg },
       { status: 500 }
     );
   }

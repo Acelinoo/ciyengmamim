@@ -15,6 +15,7 @@ import {
   AlertCircle,
   Loader2,
   ExternalLink,
+  CheckCircle2,
 } from "lucide-react";
 import Image from "next/image";
 
@@ -68,13 +69,16 @@ export function CheckoutModal({
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 5 * 1024 * 1024) {
-      setUploadError("Ukuran file maksimal 5MB.");
+    if (file.size > 10 * 1024 * 1024) {
+      setUploadError("Ukuran file maksimal 10MB.");
+      setProofToken(null);
+      setProofPreviewUrl(null);
       return;
     }
 
     setIsUploading(true);
     setUploadError(null);
+    setProofToken(null);
 
     const localUrl = URL.createObjectURL(file);
     setProofPreviewUrl(localUrl);
@@ -89,11 +93,12 @@ export function CheckoutModal({
       });
       const data = await res.json();
 
-      if (!res.ok || !data.success) {
+      if (!res.ok || !data.success || !data.token) {
         throw new Error(data.error || "Gagal mengunggah bukti pembayaran.");
       }
 
       setProofToken(data.token);
+      setUploadError(null);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Gagal mengunggah file.";
       setUploadError(msg);
@@ -371,7 +376,7 @@ export function CheckoutModal({
             <label className="relative border-2 border-dashed border-[#CFC8B8] hover:border-[#16253D] bg-[#F6F3EC] p-4 rounded-2xl flex flex-col items-center justify-center text-center cursor-pointer transition-colors group">
               <input
                 type="file"
-                accept="image/jpeg,image/png,image/webp,image/heic"
+                accept="image/*"
                 onChange={handleFileChange}
                 disabled={isUploading}
                 className="sr-only"
@@ -381,12 +386,12 @@ export function CheckoutModal({
                 <div className="py-4 flex flex-col items-center gap-2">
                   <Loader2 className="w-7 h-7 text-[#16253D] animate-spin" />
                   <span className="text-xs font-bold text-[#4B5E7A]">
-                    Memproses & mengunggah bukti...
+                    Memproses & mengunggah bukti ke server...
                   </span>
                 </div>
-              ) : proofPreviewUrl ? (
+              ) : proofToken && proofPreviewUrl ? (
                 <div className="py-2 flex flex-col items-center gap-2">
-                  <div className="relative w-28 h-28 rounded-xl overflow-hidden border border-[#CFC8B8] shadow-sm">
+                  <div className="relative w-28 h-28 rounded-xl overflow-hidden border-2 border-[#15803D] shadow-sm">
                     <Image
                       src={proofPreviewUrl}
                       alt="Preview Bukti"
@@ -394,8 +399,12 @@ export function CheckoutModal({
                       className="object-cover"
                     />
                   </div>
-                  <span className="text-xs font-extrabold text-[#15803D]">
-                    ✓ Bukti siap dikirim (Klik untuk ganti)
+                  <div className="flex items-center gap-1.5 text-xs font-black text-[#15803D]">
+                    <CheckCircle2 className="w-4 h-4" />
+                    <span>Bukti berhasil diunggah (Link aktif)</span>
+                  </div>
+                  <span className="text-[10px] text-[#877259]">
+                    Klik kotak untuk mengganti foto
                   </span>
                 </div>
               ) : (
@@ -407,16 +416,17 @@ export function CheckoutModal({
                     Pilih Screenshot / Foto Struk Bayar
                   </span>
                   <span className="text-[11px] text-[#877259]">
-                    JPEG, PNG, WEBP (Maksimal 5MB)
+                    JPG, PNG, WEBP (Maksimal 10MB)
                   </span>
                 </div>
               )}
             </label>
 
             {uploadError && (
-              <p className="text-xs text-[#D83A2E] font-bold flex items-center gap-1">
-                <AlertCircle className="w-3.5 h-3.5" /> {uploadError}
-              </p>
+              <div className="bg-red-50 border border-red-200 text-red-700 text-xs p-3 rounded-xl font-bold flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0" />
+                <span>{uploadError}</span>
+              </div>
             )}
           </div>
         </div>
