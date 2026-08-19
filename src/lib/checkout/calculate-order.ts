@@ -37,10 +37,20 @@ export async function calculateAndVerifyOrder(
   // 2. Format Bukti Pembayaran
   let proofUrl = "Belum diunggah (akan dikirim manual via chat WhatsApp)";
   if (payload.paymentProofToken && payload.paymentProofToken.trim() !== "") {
-    const baseDomain =
-      payload.appOrigin ||
-      process.env.NEXT_PUBLIC_APP_URL ||
-      "http://localhost:3000";
+    // Prioritas:
+    // 1. NEXT_PUBLIC_APP_URL jika diset ke domain publik (misal: https://ciyengmamim.vercel.app)
+    // 2. appOrigin dari browser jika bukan localhost
+    // 3. Fallback origin browser
+    let baseDomain = process.env.NEXT_PUBLIC_APP_URL?.trim();
+
+    if (!baseDomain || baseDomain.includes("localhost")) {
+      if (payload.appOrigin && !payload.appOrigin.includes("localhost")) {
+        baseDomain = payload.appOrigin;
+      } else if (!baseDomain) {
+        baseDomain = payload.appOrigin || "http://localhost:3000";
+      }
+    }
+
     proofUrl = `${baseDomain.replace(/\/$/, "")}/proof/${payload.paymentProofToken.trim()}`;
   }
 
