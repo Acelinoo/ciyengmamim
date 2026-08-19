@@ -3,7 +3,7 @@
 import { AdminLoginSchema } from "@/lib/validations";
 import { checkRateLimit } from "@/lib/security/rate-limit";
 import { db } from "@/lib/db";
-import { compare, hash } from "bcrypt-ts";
+import { compare } from "bcrypt-ts";
 import {
   createSessionToken,
   setAdminSessionCookie,
@@ -33,10 +33,12 @@ export async function adminLoginAction(formData: {
     }
 
     const { email, password } = parsed.data;
+    const cleanEmail = email.trim().toLowerCase();
+    const cleanPassword = password.trim();
 
-    // 1. Rate Limiting: Maksimal 5 percobaan gagal per 15 menit per email
-    const rateLimit = checkRateLimit(`admin-login:${email.toLowerCase()}`, {
-      limit: 5,
+    // 1. Rate Limiting: Maksimal 15 percobaan per 15 menit
+    const rateLimit = checkRateLimit(`admin-login:${cleanEmail}`, {
+      limit: 15,
       windowMs: 15 * 60 * 1000,
     });
 
@@ -44,74 +46,54 @@ export async function adminLoginAction(formData: {
       return {
         success: false,
         error:
-          "Terlalu banyak percobaan login gagal. Akun dikunci sementara selama 15 menit demi alasan keamanan.",
+          "Terlalu banyak percobaan login. Harap tunggu beberapa menit sebelum mencoba kembali.",
       };
     }
-
-    // 2. Cari Admin di Database atau verifikasi default env credentials
-    let adminUser = await db.adminUser.findUnique({
-      where: { email: email.toLowerCase() },
-    });
 
     const defaultAdminEmail = (process.env.ADMIN_DEFAULT_EMAIL || "admin@ciyengmamim.com").toLowerCase();
     const defaultAdminPassword = process.env.ADMIN_DEFAULT_PASSWORD || "admin_ciyeng_mamim_2026!";
 
-    if (!adminUser && email.toLowerCase() === defaultAdminEmail) {
-      // Buat user admin default di database jika belum ada
-      const hashedPassword = await hash(defaultAdminPassword, 10);
+    // 2. Cek default credentials
+    let isValid = false;
+    let userId = "default_admin_id";
+    let userName = "Admin Ciyeng Mamim";
+
+    if (cleanEmail === defaultAdminEmail && cleanPassword === defaultAdminPassword) {
+      isValid = true;
+    }
+
+    // 3. Jika bukan default atau mau cek DB jika online
+    if (!isValid) {
       try {
-        adminUser = await db.adminUser.create({
-          data: {
-            email: defaultAdminEmail,
-            name: "Admin Ciyeng Mamim",
-            password: hashedPassword,
-          },
+        const adminUser = await db.adminUser.findUnique({
+          where: { email: cleanEmail },
         });
-      } catch {
-        // Fallback in-memory
-        adminUser = {
-          id: "default_admin_id",
-          email: defaultAdminEmail,
-          name: "Admin Ciyeng Mamim",
-          password: hashedPassword,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        };
+
+        if (adminUser) {
+          const match = await compare(cleanPassword, adminUser.password);
+          if (match) {
+            isValid = true;
+            userId = adminUser.id;
+            userName = adminUser.name;
+          }
+        }
+      } catch (dbErr) {
+        console.warn("DB login check warning (fallback to env check):", dbErr);
       }
     }
 
-    if (!adminUser) {
+    if (!isValid) {
       return {
         success: false,
-        error: "Email atau password yang Anda masukkan salah.",
-      };
-    }
-
-    // 3. Verifikasi Password Hashing
-    let isPasswordValid = false;
-    try {
-      isPasswordValid = await compare(password, adminUser.password);
-    } catch {
-      isPasswordValid = false;
-    }
-
-    // Fallback jika password cocok dengan default password
-    if (!isPasswordValid && password === defaultAdminPassword && email.toLowerCase() === defaultAdminEmail) {
-      isPasswordValid = true;
-    }
-
-    if (!isPasswordValid) {
-      return {
-        success: false,
-        error: "Email atau password yang Anda masukkan salah.",
+        error: "Email atau kata sandi yang Anda masukkan salah.",
       };
     }
 
     // 4. Generate JWT & Set HttpOnly Cookie
     const sessionUser: AdminSessionUser = {
-      id: adminUser.id,
-      email: adminUser.email,
-      name: adminUser.name,
+      id: userId,
+      email: cleanEmail,
+      name: userName,
       role: "ADMIN",
     };
 
