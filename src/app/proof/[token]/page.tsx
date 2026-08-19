@@ -20,24 +20,40 @@ export default async function ProofViewerPage({ params }: ProofViewerPageProps) 
   let proof = null;
   let signedUrl: string | null = null;
 
-  try {
-    proof = await db.paymentProof.findUnique({
-      where: { accessToken: token },
-    });
-
-    if (proof) {
-      // Prioritaskan Direct Base64 Data URL jika ada (Jaminan 100% tampil di Vercel tanpa S3)
-      if (proof.fileData && proof.fileData.startsWith("data:image/")) {
-        signedUrl = proof.fileData;
-      } else {
-        signedUrl = await getExpiringSignedUrl(proof.filePath, 86400);
+  // 1. Cek format self-contained token proof_p_ (100% Stateless & Reliable di Vercel tanpa DB)
+  if (token.startsWith("proof_p_")) {
+    try {
+      const rawCdnUrl = Buffer.from(token.replace("proof_p_", ""), "base64url").toString("utf-8");
+      if (rawCdnUrl.startsWith("http")) {
+        signedUrl = rawCdnUrl;
       }
+    } catch (e) {
+      console.warn("Decode proof_p_ token warning:", e);
     }
-  } catch (error) {
-    console.error("Fetch proof error:", error);
   }
 
-  // Fallback memory check
+  // 2. Cek Database jika ada
+  if (!signedUrl) {
+    try {
+      proof = await db.paymentProof.findUnique({
+        where: { accessToken: token },
+      });
+
+      if (proof) {
+        if (proof.fileData && proof.fileData.startsWith("data:image/")) {
+          signedUrl = proof.fileData;
+        } else if (proof.filePath.startsWith("http")) {
+          signedUrl = proof.filePath;
+        } else {
+          signedUrl = await getExpiringSignedUrl(proof.filePath, 86400);
+        }
+      }
+    } catch (error) {
+      console.error("Fetch proof error:", error);
+    }
+  }
+
+  // 3. Fallback memory check
   if (!signedUrl && token.startsWith("proof_")) {
     try {
       signedUrl = await getExpiringSignedUrl(`proofs/2026-08/${token}.webp`, 86400);
@@ -46,7 +62,7 @@ export default async function ProofViewerPage({ params }: ProofViewerPageProps) 
     }
   }
 
-  if (!proof && !signedUrl) {
+  if (!signedUrl) {
     return (
       <div className="min-h-screen bg-[#F6F3EC] flex items-center justify-center p-4">
         <div className="bg-white max-w-md w-full p-6 sm:p-8 rounded-3xl border border-[#E2DDD2] shadow-xl text-center">
@@ -57,7 +73,7 @@ export default async function ProofViewerPage({ params }: ProofViewerPageProps) 
             Bukti Pembayaran Tidak Ditemukan
           </h1>
           <p className="text-xs sm:text-sm text-[#4B5E7A] leading-relaxed mb-6">
-            Tautan bukti pembayaran ini mungkin sudah kedaluwarsa (retensi 14 hari) atau token akses tidak valid.
+            Tautan bukti pembayaran ini mungkin sudah kedaluwarsa atau token akses tidak valid.
           </p>
           <Link
             href="/"
@@ -82,8 +98,6 @@ export default async function ProofViewerPage({ params }: ProofViewerPageProps) 
         timeStyle: "short",
         timeZone: "Asia/Jakarta",
       }).format(new Date());
-
-  const imageSrc = signedUrl || (proof?.fileData ?? "");
 
   return (
     <div className="min-h-screen bg-[#F6F3EC] p-4 sm:p-6 flex flex-col items-center justify-center">
@@ -117,20 +131,13 @@ export default async function ProofViewerPage({ params }: ProofViewerPageProps) 
 
         {/* Image Container */}
         <div className="p-4 sm:p-6 flex flex-col items-center">
-          <div className="relative w-full max-h-[550px] min-h-[320px] rounded-2xl overflow-hidden bg-[#F6F3EC] border border-[#E2DDD2] shadow-sm mb-4 flex items-center justify-center p-2">
-            {imageSrc ? (
-              // Menggunakan standard img element dengan support base64 murni untuk kompatibilitas mutlak di mobile browser
-              <img
-                src={imageSrc}
-                alt="Bukti Transfer Customer"
-                className="max-h-[500px] w-auto max-w-full object-contain rounded-xl shadow-xs"
-              />
-            ) : (
-              <div className="py-12 text-center text-[#877259]">
-                <AlertCircle className="w-8 h-8 mx-auto mb-2 text-[#D83A2E]" />
-                <span className="text-xs font-bold">Gagal memuat gambar bukti transfer</span>
-              </div>
-            )}
+          <div className="relative w-full max-h-[550px] min-h-[300px] rounded-2xl overflow-hidden bg-[#F6F3EC] border border-[#E2DDD2] shadow-sm mb-4 flex items-center justify-center p-2">
+            <img
+              src={signedUrl}
+              alt="Bukti Transfer Customer Ciyeng Mamim"
+              className="max-h-[500px] w-auto max-w-full object-contain rounded-xl shadow-xs"
+              loading="eager"
+            />
           </div>
 
           {/* Metadata info */}

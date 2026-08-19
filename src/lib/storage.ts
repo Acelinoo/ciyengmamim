@@ -33,7 +33,7 @@ const s3Client = isS3Configured
     })
   : null;
 
-// Global in-memory cache to ensure serverless (Vercel) & local development NEVER fail
+// Global in-memory cache
 const globalProofMemory = globalThis as unknown as {
   inMemoryProofStore?: Map<string, { buffer: Buffer; mimeType: string; createdAt: number }>;
 };
@@ -44,7 +44,6 @@ if (!globalProofMemory.inMemoryProofStore) {
 
 const memoryStore = globalProofMemory.inMemoryProofStore;
 
-// Local fallback storage directory
 const LOCAL_STORAGE_DIR = path.join(process.cwd(), "public", "uploads", "private");
 const TMP_STORAGE_DIR = path.join(os.tmpdir(), "ciyengmamim_proofs");
 
@@ -57,7 +56,59 @@ function ensureLocalDir(baseDir: string, subfolder: string) {
 }
 
 /**
- * Menyimpan buffer file ke Private Storage (S3/R2, Local Storage, dan Memory Fallback)
+ * Upload gambar ke CDN Publik Permanen (Gratis, Stateless, 100% Reliable di Vercel)
+ */
+export async function uploadToPublicFallbackCDN(
+  buffer: Buffer,
+  filename: string
+): Promise<string | null> {
+  try {
+    const fd = new FormData();
+    fd.append("reqtype", "fileupload");
+    fd.append("fileToUpload", new Blob([new Uint8Array(buffer)], { type: "image/webp" }), filename);
+
+    const res = await fetch("https://catbox.moe/user/api.php", {
+      method: "POST",
+      body: fd,
+    });
+
+    if (res.ok) {
+      const cdnUrl = (await res.text()).trim();
+      if (cdnUrl.startsWith("http")) {
+        return cdnUrl;
+      }
+    }
+  } catch (err) {
+    console.warn("Public CDN upload failed, fallback to secondary:", err);
+  }
+
+  // Secondary Fallback: Litterbox
+  try {
+    const fd = new FormData();
+    fd.append("reqtype", "fileupload");
+    fd.append("time", "72h");
+    fd.append("fileToUpload", new Blob([new Uint8Array(buffer)], { type: "image/webp" }), filename);
+
+    const res = await fetch("https://litterbox.catbox.moe/resources/internals/api.php", {
+      method: "POST",
+      body: fd,
+    });
+
+    if (res.ok) {
+      const cdnUrl = (await res.text()).trim();
+      if (cdnUrl.startsWith("http")) {
+        return cdnUrl;
+      }
+    }
+  } catch {
+    // ignore
+  }
+
+  return null;
+}
+
+/**
+ * Menyimpan buffer file ke Storage
  */
 export async function uploadPrivateFile(
   buffer: Buffer,
@@ -67,22 +118,12 @@ export async function uploadPrivateFile(
 ): Promise<{ filePath: string }> {
   const filePath = `${folder}/${filename}`;
 
-  // 1. Always cache in memory (Ensures Vercel serverless functions can retrieve it instantly)
   memoryStore.set(filePath, {
     buffer,
     mimeType: contentType,
     createdAt: Date.now(),
   });
 
-  // Keep memory clean (delete items older than 2 hours)
-  if (memoryStore.size > 200) {
-    const twoHoursAgo = Date.now() - 2 * 60 * 60 * 1000;
-    for (const [key, value] of memoryStore.entries()) {
-      if (value.createdAt < twoHoursAgo) memoryStore.delete(key);
-    }
-  }
-
-  // 2. Upload to S3 if configured
   if (s3Client) {
     try {
       const command = new PutObjectCommand({
@@ -94,11 +135,10 @@ export async function uploadPrivateFile(
       await s3Client.send(command);
       return { filePath };
     } catch (err) {
-      console.warn("S3 upload failed, falling back to local/memory:", err);
+      console.warn("S3 upload failed:", err);
     }
   }
 
-  // 3. Try writing to local or tmp directory
   try {
     const targetDir = ensureLocalDir(LOCAL_STORAGE_DIR, folder);
     const targetPath = path.join(targetDir, filename);
@@ -109,7 +149,7 @@ export async function uploadPrivateFile(
       const targetPath = path.join(targetDir, filename);
       await fs.promises.writeFile(targetPath, buffer);
     } catch {
-      // Memory store is already populated
+      // ignore
     }
   }
 
@@ -117,32 +157,28 @@ export async function uploadPrivateFile(
 }
 
 /**
- * Mengambil Buffer file dari Memory, Local Disk, atau S3
+ * Mengambil Buffer file
  */
 export async function getPrivateFileBuffer(
   filePath: string
 ): Promise<{ buffer: Buffer; mimeType: string } | null> {
-  // 1. Check memory store
   const cached = memoryStore.get(filePath);
   if (cached) {
     return { buffer: cached.buffer, mimeType: cached.mimeType };
   }
 
-  // 2. Check local disk
   const localPath = path.join(LOCAL_STORAGE_DIR, filePath);
   if (fs.existsSync(localPath)) {
     const buffer = await fs.promises.readFile(localPath);
     return { buffer, mimeType: "image/webp" };
   }
 
-  // 3. Check tmp directory
   const tmpPath = path.join(TMP_STORAGE_DIR, filePath);
   if (fs.existsSync(tmpPath)) {
     const buffer = await fs.promises.readFile(tmpPath);
     return { buffer, mimeType: "image/webp" };
   }
 
-  // 4. Check S3 if available
   if (s3Client) {
     try {
       const command = new GetObjectCommand({
@@ -166,7 +202,7 @@ export async function getPrivateFileBuffer(
 }
 
 /**
- * Menghasilkan Expiring Signed URL atau stream endpoint
+ * Menghasilkan Expiring Signed URL
  */
 export async function getExpiringSignedUrl(
   filePath: string,
@@ -186,32 +222,4 @@ export async function getExpiringSignedUrl(
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
   return `${appUrl.replace(/\/$/, "")}/api/proof/file?path=${encodeURIComponent(filePath)}`;
-}
-
-/**
- * Menghapus file dari Storage
- */
-export async function deletePrivateFile(filePath: string): Promise<void> {
-  memoryStore.delete(filePath);
-
-  if (s3Client) {
-    try {
-      const command = new DeleteObjectCommand({
-        Bucket: BUCKET_NAME,
-        Key: filePath,
-      });
-      await s3Client.send(command);
-    } catch {
-      // ignore
-    }
-  }
-
-  const fullPath = path.join(LOCAL_STORAGE_DIR, filePath);
-  if (fs.existsSync(fullPath)) {
-    try {
-      await fs.promises.unlink(fullPath);
-    } catch {
-      // ignore
-    }
-  }
 }
