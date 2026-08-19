@@ -124,6 +124,20 @@ export const StoreSettingsSchema = z.object({
   mapsEmbedUrl: z.string().optional().nullable(),
 });
 
+// 8. Change Password Schema
+export const ChangePasswordSchema = z
+  .object({
+    currentPassword: z.string().min(1, "Kata sandi saat ini wajib diisi"),
+    newPassword: z.string().min(8, "Kata sandi baru minimal 8 karakter"),
+    confirmPassword: z.string().min(8, "Konfirmasi kata sandi baru minimal 8 karakter"),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: "Konfirmasi kata sandi baru tidak cocok dengan kata sandi baru",
+    path: ["confirmPassword"],
+  });
+
+export const ChangePasswordInputSchema = ChangePasswordSchema;
+
 // Aliases for admin actions compatibility
 export const AddonInputSchema = AddOnInputSchema;
 export const PaymentSettingsInputSchema = PaymentSettingsSchema;

@@ -10,6 +10,7 @@ import {
   CreditCard,
   Clock,
   Store,
+  KeyRound,
   LogOut,
   ExternalLink,
 } from "lucide-react";
@@ -31,6 +32,7 @@ export function AdminNav({ user }: AdminNavProps) {
     { label: "Pembayaran", href: "/admin/payment", icon: CreditCard },
     { label: "Jam Operasional", href: "/admin/operations", icon: Clock },
     { label: "Profil Toko", href: "/admin/store-info", icon: Store },
+    { label: "Ganti Password", href: "/admin/security", icon: KeyRound },
   ];
 
   const handleLogout = async () => {

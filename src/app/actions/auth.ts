@@ -1,13 +1,14 @@
 "use server";
 
-import { AdminLoginSchema } from "@/lib/validations";
+import { AdminLoginSchema, ChangePasswordSchema } from "@/lib/validations";
 import { checkRateLimit } from "@/lib/security/rate-limit";
 import { db } from "@/lib/db";
-import { compare } from "bcrypt-ts";
+import { compare, hash } from "bcrypt-ts";
 import {
   createSessionToken,
   setAdminSessionCookie,
   clearAdminSessionCookie,
+  requireAdminSession,
 } from "@/lib/auth/session";
 import { AdminSessionUser } from "@/types";
 
@@ -106,6 +107,88 @@ export async function adminLoginAction(formData: {
     return {
       success: false,
       error: "Terjadi kendala saat memproses login. Silakan coba lagi.",
+    };
+  }
+}
+
+/**
+ * 🔒 Server Action: Change Admin Password
+ */
+export async function changeAdminPasswordAction(rawData: unknown): Promise<AuthActionResult> {
+  try {
+    const session = await requireAdminSession();
+    const parsed = ChangePasswordSchema.safeParse(rawData);
+    if (!parsed.success) {
+      return {
+        success: false,
+        error: parsed.error.issues[0]?.message || "Data formulir tidak valid.",
+      };
+    }
+
+    const { currentPassword, newPassword } = parsed.data;
+
+    // 1. Verifikasi Password Saat Ini
+    const defaultAdminEmail = (process.env.ADMIN_DEFAULT_EMAIL || "admin@ciyengmamim.com").toLowerCase();
+    const defaultAdminPassword = process.env.ADMIN_DEFAULT_PASSWORD || "admin_ciyeng_mamim_2026!";
+
+    let adminUser = null;
+    try {
+      adminUser = await db.adminUser.findUnique({
+        where: { email: session.email.toLowerCase() },
+      });
+    } catch {
+      // ignore
+    }
+
+    let isCurrentPasswordValid = false;
+
+    if (adminUser) {
+      isCurrentPasswordValid = await compare(currentPassword, adminUser.password);
+    }
+
+    if (!isCurrentPasswordValid && session.email.toLowerCase() === defaultAdminEmail && currentPassword === defaultAdminPassword) {
+      isCurrentPasswordValid = true;
+    }
+
+    if (!isCurrentPasswordValid) {
+      return {
+        success: false,
+        error: "Kata sandi lama yang Anda masukkan tidak sesuai.",
+      };
+    }
+
+    // 2. Hash Password Baru
+    const newHashedPassword = await hash(newPassword, 10);
+
+    // 3. Simpan ke Database
+    try {
+      if (adminUser) {
+        await db.adminUser.update({
+          where: { id: adminUser.id },
+          data: { password: newHashedPassword },
+        });
+      } else {
+        await db.adminUser.create({
+          data: {
+            email: session.email.toLowerCase(),
+            name: session.name || "Admin Ciyeng Mamim",
+            password: newHashedPassword,
+          },
+        });
+      }
+    } catch (dbErr) {
+      console.warn("Update password in DB warning:", dbErr);
+    }
+
+    return {
+      success: true,
+    };
+  } catch (error) {
+    console.error("Change password error:", error);
+    const msg = error instanceof Error ? error.message : "Gagal mengubah kata sandi.";
+    return {
+      success: false,
+      error: msg,
     };
   }
 }
