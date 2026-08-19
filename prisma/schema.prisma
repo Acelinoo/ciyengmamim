@@ -35,12 +35,12 @@ model AdminAuditLog {
 model StoreSettings {
   id              String   @id @default("default_store")
   storeName       String   @default("Ciyeng Mamim")
-  tagline         String?  @default("Cireng Crispy Renyah dengan Aneka Saus Spesial")
-  logoUrl         String?
-  whatsappNumber  String   @default("6281234567890") // Format internasional tanpa + atau spasi
+  tagline         String?  @default("Balikin Mood with Good Food")
+  logoUrl         String?  @default("/images/logo.png")
+  whatsappNumber  String   @default("6289676636637")
   instagramHandle String?  @default("ciyengmamim")
-  instagramUrl    String?
-  address         String?  @default("Jl. Raya Cireng No. 8, Jakarta")
+  instagramUrl    String?  @default("https://instagram.com/ciyengmamim")
+  address         String?  @default("Jl Raya gading tutuka GC Kuliner pujasera, Soreang")
   mapsUrl         String?
   mapsEmbedUrl    String?
   updatedAt       DateTime @updatedAt
@@ -64,11 +64,11 @@ model Product {
   name        String
   slug        String          @unique
   description String?
-  price       Int             // Dalam satuan Rupiah penuh (contoh: 15000)
+  price       Int             // Dalam satuan Rupiah penuh (contoh: 3500)
   imageUrl    String
   isAvailable Boolean         @default(true)
   sortOrder   Int             @default(0)
-  variants    VariantOption[] // Pilihan varian (cth: Original, Pedas, Keju)
+  variants    VariantOption[]
   createdAt   DateTime        @default(now())
   updatedAt   DateTime        @updatedAt
 }
@@ -76,8 +76,8 @@ model Product {
 // Sub-entity: Pilihan Varian Produk
 model VariantOption {
   id        String   @id @default(cuid())
-  name      String   // Misal: "Original", "Extra Bumbu Pedas"
-  price     Int      @default(0) // Tambahan harga jika ada
+  name      String
+  price     Int      @default(0)
   productId String
   product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
 }
@@ -85,13 +85,13 @@ model VariantOption {
 // 6. Package Bundling Items
 model Package {
   id             String   @id @default(cuid())
-  name           String   // Misal: "Paket Puas A", "Paket Rame-Rame"
+  name           String
   slug           String   @unique
   description    String?
-  price          Int      // Total harga paket
+  price          Int
   imageUrl       String
-  packageItems   String[] // Array teks isi paket, cth: ["10x Cireng Crispy", "1x Saus Taichan", "1x Saus Creamy"]
-  includedSauces String[] // Daftar saus bawaan yang didapat (bisa dipilih customer)
+  packageItems   String[]
+  includedSauces String[]
   isAvailable    Boolean  @default(true)
   sortOrder      Int      @default(0)
   createdAt      DateTime @default(now())
@@ -101,9 +101,9 @@ model Package {
 // 7. Add-ons & Extra Sauces
 model AddOn {
   id          String   @id @default(cuid())
-  name        String   // Misal: "Saus Taichan Pedas", "Creamy Cheese", "Creamy Ranch"
+  name        String
   description String?
-  price       Int      // Harga satuan add-on (misal: 4000)
+  price       Int
   imageUrl    String?
   isAvailable Boolean  @default(true)
   sortOrder   Int      @default(0)
@@ -114,29 +114,27 @@ model AddOn {
 // 8. Payment Configurations (Single-row Settings)
 model PaymentSettings {
   id            String   @id @default("default_payment")
-  // Bank Transfer Configuration
   bankName      String   @default("BCA")
-  accountNumber String   @default("1234567890")
+  accountNumber String   @default("7772345678")
   accountHolder String   @default("CIYENG MAMIM")
-  bankNotes     String?  @default("Mohon transfer sesuai total tagihan.")
-  
-  // QRIS Configuration
-  qrisImageUrl  String?  // URL gambar QRIS untuk di-scan
-  qrisNmid      String?  // Optional NMID QRIS
+  bankNotes     String?  @default("Mohon transfer sesuai total tagihan dan unggah bukti transfer.")
+  qrisImageUrl  String?
+  qrisNmid      String?
   isQrisActive  Boolean  @default(true)
   isBankActive  Boolean  @default(true)
   updatedAt     DateTime @updatedAt
 }
 
-// 9. Ephemeral Payment Proof Metadata (Private Storage + Expiring Token)
+// 9. Ephemeral Payment Proof Metadata (with persistent Base64 Data URL)
 model PaymentProof {
   id          String   @id @default(cuid())
-  accessToken String   @unique @default(cuid()) // Unpredictable Token untuk URL WhatsApp
-  filePath    String   // Storage private bucket path
-  fileSize    Int      // Bytes
-  mimeType    String   // image/jpeg, image/png, image/webp
+  accessToken String   @unique @default(cuid())
+  filePath    String
+  fileSize    Int
+  mimeType    String
+  fileData    String?  @db.Text // Base64 data URL untuk jaminan 100% foto tampil di Vercel
   uploadedAt  DateTime @default(now())
-  expiresAt   DateTime // Retention TTL (14 hari setelah upload untuk auto-cleanup)
+  expiresAt   DateTime
 
   @@index([accessToken])
   @@index([expiresAt])

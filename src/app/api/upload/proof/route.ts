@@ -12,7 +12,7 @@ const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
 
 export async function POST(req: NextRequest) {
   try {
-    // 1. Rate Limiting: 50 upload per 10 menit
+    // 1. Rate Limiting
     const clientIp =
       req.headers.get("x-forwarded-for")?.split(",")[0] ||
       req.headers.get("x-real-ip") ||
@@ -64,25 +64,28 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 5. Kompresi & Optimalisasi Gambar menggunakan Sharp (WebP)
+    // 5. Kompresi & Optimalisasi Gambar menggunakan Sharp (WebP, max width 1000px, quality 75)
     let optimizedBuffer: Buffer;
     try {
       optimizedBuffer = await sharp(rawBuffer)
         .rotate() // Auto-orient dari EXIF smartphone
-        .resize({ width: 1200, height: 1600, fit: "inside", withoutEnlargement: true })
-        .webp({ quality: 80 })
+        .resize({ width: 1000, height: 1400, fit: "inside", withoutEnlargement: true })
+        .webp({ quality: 75 })
         .toBuffer();
     } catch {
       optimizedBuffer = rawBuffer;
     }
 
-    // 6. Generate Random UUID filename
+    // 6. Generate Base64 Data URL (Jaminan 100% foto tampil di semua serverless Vercel)
+    const base64Data = `data:image/webp;base64,${optimizedBuffer.toString("base64")}`;
+
+    // 7. Generate Random UUID filename
     const randomUuid = crypto.randomUUID();
     const safeFilename = `${randomUuid}.webp`;
-    const yearMonth = new Date().toISOString().slice(0, 7); // e.g. "2026-08"
+    const yearMonth = new Date().toISOString().slice(0, 7);
     const folder = `proofs/${yearMonth}`;
 
-    // 7. Simpan ke Storage
+    // 8. Simpan ke Storage Buffer
     const { filePath } = await uploadPrivateFile(
       optimizedBuffer,
       folder,
@@ -90,7 +93,7 @@ export async function POST(req: NextRequest) {
       "image/webp"
     );
 
-    // 8. Simpan Metadata & Access Token di Database (TTL 14 hari)
+    // 9. Simpan Metadata & Access Token di Database (TTL 14 hari)
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + 14);
 
@@ -103,11 +106,12 @@ export async function POST(req: NextRequest) {
           filePath,
           fileSize: optimizedBuffer.length,
           mimeType: "image/webp",
+          fileData: base64Data,
           expiresAt,
         },
       });
-    } catch {
-      // Fallback jika DB offline
+    } catch (dbErr) {
+      console.warn("DB save proof warning:", dbErr);
     }
 
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
