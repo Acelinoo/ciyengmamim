@@ -55,48 +55,45 @@ export const dynamicStore = globalStoreState.ciyengStoreData;
  */
 export async function getPublicStoreData(): Promise<PublicStoreData> {
   try {
-    const storeDb = await db.storeSettings.findFirst().catch(() => null);
+    const [storeDb, opDb, payDb, productsDb, packagesDb, addonsDb] = await Promise.all([
+      db.storeSettings.findFirst().catch(() => null),
+      db.operationalSettings.findFirst().catch(() => null),
+      db.paymentSettings.findFirst().catch(() => null),
+      db.product
+        .findMany({
+          orderBy: { sortOrder: "asc" },
+          include: { variants: true },
+        })
+        .catch(() => []),
+      db.package
+        .findMany({
+          orderBy: { sortOrder: "asc" },
+        })
+        .catch(() => []),
+      db.addOn
+        .findMany({
+          orderBy: { sortOrder: "asc" },
+        })
+        .catch(() => []),
+    ]);
 
-    if (storeDb) {
-      const [opDb, payDb, productsDb, packagesDb, addonsDb] = await Promise.all([
-        db.operationalSettings.findFirst().catch(() => null),
-        db.paymentSettings.findFirst().catch(() => null),
-        db.product
-          .findMany({
-            orderBy: { sortOrder: "asc" },
-            include: { variants: true },
-          })
-          .catch(() => []),
-        db.package
-          .findMany({
-            orderBy: { sortOrder: "asc" },
-          })
-          .catch(() => []),
-        db.addOn
-          .findMany({
-            orderBy: { sortOrder: "asc" },
-          })
-          .catch(() => []),
-      ]);
-
-      return {
-        store: storeDb,
-        operational: opDb || dynamicStore.operational,
-        payment: payDb || dynamicStore.payment,
-        products:
-          productsDb && productsDb.length > 0
-            ? (productsDb as unknown as ProductItem[])
-            : dynamicStore.products,
-        packages:
-          packagesDb && packagesDb.length > 0
-            ? (packagesDb as unknown as PackageItem[])
-            : dynamicStore.packages,
-        addons:
-          addonsDb && addonsDb.length > 0
-            ? (addonsDb as unknown as AddOnItem[])
-            : dynamicStore.addons,
-      };
-    }
+    return {
+      store: storeDb || dynamicStore.store,
+      operational: opDb || dynamicStore.operational,
+      payment: payDb || dynamicStore.payment,
+      products:
+        productsDb && productsDb.length > 0
+          ? (productsDb as unknown as ProductItem[])
+          : dynamicStore.products,
+      packages:
+        packagesDb && packagesDb.length > 0
+          ? (packagesDb as unknown as PackageItem[])
+          : dynamicStore.packages,
+      addons:
+        addonsDb && addonsDb.length > 0
+          ? (addonsDb as unknown as AddOnItem[])
+          : dynamicStore.addons,
+    };
   } catch {
     // Fallback to dynamic synchronized memory store below
   }

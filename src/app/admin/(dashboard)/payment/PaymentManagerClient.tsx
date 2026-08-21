@@ -63,11 +63,32 @@ export function PaymentManagerClient({
       });
       const data = await res.json();
 
-      if (!res.ok || !data.success || !data.url) {
-        throw new Error(data.error || "Gagal mengunggah foto QRIS.");
-      }
+      const uploadedUrl = data.url;
+      setQrisImageUrl(uploadedUrl);
 
-      setQrisImageUrl(data.url);
+      // Auto-save update to Database & Server State immediately
+      const payload = {
+        bankName: bankName.trim(),
+        accountNumber: accountNumber.trim(),
+        accountHolder: accountHolder.trim(),
+        bankNotes: bankNotes.trim(),
+        qrisImageUrl: uploadedUrl,
+        qrisNmid: qrisNmid.trim(),
+        isBankActive,
+        isQrisActive,
+        isCodActive,
+        codNotes: codNotes.trim(),
+      };
+
+      startTransition(async () => {
+        const updateRes = await updatePaymentSettingsAction(payload);
+        if (updateRes.success) {
+          setFeedback({
+            type: "success",
+            text: "Foto barcode QRIS berhasil diunggah & langsung aktif tersimpan ke sistem!",
+          });
+        }
+      });
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Gagal mengunggah barcode QRIS.";
       setUploadError(msg);
