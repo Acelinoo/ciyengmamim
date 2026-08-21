@@ -51,6 +51,7 @@ export async function POST(req: NextRequest) {
       optimizedBuffer = rawBuffer;
     }
 
+    const base64Data = `data:image/webp;base64,${optimizedBuffer.toString("base64")}`;
     const randomUuid = crypto.randomUUID();
     const safeFilename = `qris-${randomUuid}.webp`;
 
@@ -60,7 +61,8 @@ export async function POST(req: NextRequest) {
       uploadToPublicFallbackCDN(optimizedBuffer, safeFilename),
     ]);
 
-    const finalUrl = cdnUrl || `/api/proof/file?path=${encodeURIComponent(localRes.filePath)}`;
+    // Jika CDN tersedia gunakan CDN, jika tidak gunakan Base64 Data URL (100% stateless & tampil di semua browser)
+    const finalUrl = cdnUrl || base64Data;
 
     return NextResponse.json({
       success: true,
