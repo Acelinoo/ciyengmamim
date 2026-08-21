@@ -92,7 +92,7 @@ export const PaymentSettingsSchema = z.object({
   accountNumber: z.string().min(4, "Nomor Rekening wajib diisi"),
   accountHolder: z.string().min(2, "Atas Nama Rekening wajib diisi"),
   bankNotes: z.string().optional().default(""),
-  qrisImageUrl: z.string().min(1, "Gambar QRIS wajib ada"),
+  qrisImageUrl: z.string().optional().default(""),
   qrisNmid: z.string().optional().default(""),
   isBankActive: z.boolean().default(true),
   isQrisActive: z.boolean().default(true),
