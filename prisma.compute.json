@@ -1,0 +1,10 @@
+{
+  "app": {
+    "name": "ciyengmamim",
+    "framework": "nextjs",
+    "httpPort": 3000,
+    "build": {
+      "command": "npm run build"
+    }
+  }
+}
