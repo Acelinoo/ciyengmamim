@@ -375,6 +375,7 @@ export function CheckoutModal({
                     alt="QRIS Pembayaran Ciyeng Mamim"
                     fill
                     className="object-contain p-2"
+                    unoptimized
                   />
                 </div>
                 {paymentSettings.qrisNmid && (
@@ -394,7 +395,7 @@ export function CheckoutModal({
                 </div>
                 <p className="text-xs text-[#4B5E7A] leading-relaxed">
                   {paymentSettings.codNotes ||
-                    "Bayar tunai/cash langsung saat pesanan diambil di toko atau diantar ke alamat Anda."}
+                    "Bayar tunai/cash langsung saat pesanan diambil atau diantar."}
                 </p>
               </div>
             )}
@@ -447,6 +448,7 @@ export function CheckoutModal({
                         alt="Preview Bukti"
                         fill
                         className="object-cover"
+                        unoptimized
                       />
                     </div>
                     <div className="flex items-center gap-1.5 text-xs font-black text-[#15803D]">
