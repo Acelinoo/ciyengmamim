@@ -27,20 +27,17 @@ export interface GoogleReviewsSummary {
 // - Knowledge Graph MID (kgmid): /g/11zgcxh3wm
 // - Koordinat: -7.022391, 107.5423507 (Soreang, Bandung)
 
-// 1. Google Place ID resmi (Format: ChIJ... dari Google Places API / Google Business Profile).
-// Jika Anda memiliki API Key atau telah mengklaim Profil Bisnis Google, masukkan string ChIJ di sini:
-export const GOOGLE_PLACE_ID = "";
+// 1. Google Place ID resmi Ciyeng Mamim (Base64URL Protobuf dari CID 0x2e68ed0069a4a477:0xfe01ca13fc50ae11)
+export const GOOGLE_PLACE_ID = "ChIJd6SkaQDtaC4REa5Q_BPKAf4";
 
 // 2. Listing Resmi Google Maps Ciyeng Mamim (Tab Ulasan: !9m1!1b1)
 export const GOOGLE_MAPS_PLACE_URL =
   "https://www.google.com/maps/place/Ciyeng+Mamim+(Cireng+isi+PREMIUM)/@-7.022391,107.5423507,17z/data=!4m8!3m7!1s0x2e68ed0069a4a477:0xfe01ca13fc50ae11!8m2!3d-7.022391!4d107.5423507!9m1!1b1!16s%2Fg%2F11zgcxh3wm";
 
 // 3. Target URL Tombol "Berikan Ulasan di Google":
-// - Prioritas 1: Google Write Review resmi (https://search.google.com/local/writereview?placeid=PLACE_ID) jika GOOGLE_PLACE_ID terisi
-// - Prioritas 2: Fallback ke listing Google Maps resmi Ciyeng Mamim bagian ulasan
-export const GOOGLE_REVIEWS_WRITE_URL = GOOGLE_PLACE_ID
-  ? `https://search.google.com/local/writereview?placeid=${GOOGLE_PLACE_ID}`
-  : GOOGLE_MAPS_PLACE_URL;
+// Menggunakan Google Write Review Deep Link resmi (sama persis dengan Dapurnya Via)
+// yang ketika dibuka langsung memicu popup/dialog form "Tulis ulasan" secara otomatis
+export const GOOGLE_REVIEWS_WRITE_URL = `https://search.google.com/local/writereview?placeid=${GOOGLE_PLACE_ID}`;
 
 export const GOOGLE_MAPS_REVIEW_URL = GOOGLE_REVIEWS_WRITE_URL;
 
