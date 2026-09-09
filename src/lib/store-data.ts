@@ -54,6 +54,7 @@ if (!globalStoreState.ciyengStoreData) {
       globalStoreState.ciyengStoreData.products.push(JSON.parse(JSON.stringify(initProd)));
     } else if (initProd.id.startsWith("prod_mentah_")) {
       existing.imageUrl = initProd.imageUrl;
+      existing.description = initProd.description;
     }
   }
 }

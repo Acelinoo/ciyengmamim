@@ -13,6 +13,14 @@ interface ProductCardProps {
 export function ProductCard({ product, onSelect }: ProductCardProps) {
   const isMentah = product.name.toLowerCase().includes("mentah");
 
+  // Ekstrak nama varian rasa agar tidak terpotong kata "Cireng Mentah - " di layar mobile yang sempit
+  const flavorTitle = isMentah
+    ? product.name
+        .replace(/^Cireng Mentah\s*[-–—]\s*/i, "")
+        .replace(/\s*\(\d+\s*pcs\)/i, "")
+        .trim()
+    : product.name;
+
   return (
     <div className="food-card bg-white border border-[#E2DDD2] hover:border-[#16253D] p-3 sm:p-5 flex flex-col justify-between group transition-all rounded-2xl sm:rounded-3xl">
       <div>
@@ -45,9 +53,23 @@ export function ProductCard({ product, onSelect }: ProductCardProps) {
         </div>
 
         {/* Product Info */}
-        <h3 className="font-black text-sm sm:text-lg text-[#16253D] mb-1 line-clamp-1 group-hover:text-[#1D2D44] transition-colors">
-          {product.name}
-        </h3>
+        <div className="mb-1">
+          {isMentah ? (
+            <div>
+              <span className="text-[9px] sm:text-[10px] uppercase font-black tracking-wider text-[#5C4028] bg-[#F4EFE6] px-1.5 py-0.5 rounded inline-block mb-1 border border-[#E2DDD2]/60">
+                Mentah 10 Pcs
+              </span>
+              <h3 className="font-black text-sm sm:text-lg text-[#16253D] leading-snug line-clamp-2 group-hover:text-[#1D2D44] transition-colors">
+                {flavorTitle}
+              </h3>
+            </div>
+          ) : (
+            <h3 className="font-black text-sm sm:text-lg text-[#16253D] leading-snug line-clamp-2 group-hover:text-[#1D2D44] transition-colors">
+              {product.name}
+            </h3>
+          )}
+        </div>
+
         <p className="text-[11px] sm:text-sm text-[#2C3E5A] line-clamp-2 leading-relaxed mb-3 sm:mb-4 font-medium">
           {product.description}
         </p>
