@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import gsap from "gsap";
 import {
   ProductItem,
   PackageItem,
@@ -57,6 +58,20 @@ export function StoreClientView({
     "ALL"
   );
 
+  // GSAP Animation Refs
+  const paketSectionRef = useRef<HTMLElement>(null);
+  const paketHeaderRef = useRef<HTMLDivElement>(null);
+  const paketGridRef = useRef<HTMLDivElement>(null);
+
+  const menuSectionRef = useRef<HTMLElement>(null);
+  const menuHeaderRef = useRef<HTMLDivElement>(null);
+  const menuTabsRef = useRef<HTMLDivElement>(null);
+  const menuGridRef = useRef<HTMLDivElement>(null);
+
+  const sauceSectionRef = useRef<HTMLElement>(null);
+  const sauceHeaderRef = useRef<HTMLDivElement>(null);
+  const sauceGridRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     setIsClient(true);
     try {
@@ -68,6 +83,130 @@ export function StoreClientView({
       // ignore
     }
   }, []);
+
+  // 1. GSAP Scroll Animations for Sections (Smooth & Lightweight)
+  useEffect(() => {
+    const setupObserver = (
+      sectionEl: HTMLElement | null,
+      animateFn: () => void
+    ) => {
+      if (!sectionEl) return () => {};
+      let hasTriggered = false;
+      const observer = new IntersectionObserver(
+        (entries) => {
+          const [entry] = entries;
+          if (entry.isIntersecting && !hasTriggered) {
+            hasTriggered = true;
+            observer.disconnect();
+            animateFn();
+          }
+        },
+        { threshold: 0.12 }
+      );
+      observer.observe(sectionEl);
+      return () => observer.disconnect();
+    };
+
+    // Animate Paket Section
+    const cleanupPaket = setupObserver(paketSectionRef.current, () => {
+      const ctx = gsap.context(() => {
+        const tl = gsap.timeline({ defaults: { ease: "power2.out" } });
+        if (paketHeaderRef.current) {
+          tl.fromTo(
+            paketHeaderRef.current,
+            { y: 24, opacity: 0 },
+            { y: 0, opacity: 1, duration: 0.6 }
+          );
+        }
+        if (paketGridRef.current) {
+          const cards = paketGridRef.current.children;
+          tl.fromTo(
+            cards,
+            { y: 28, opacity: 0, scale: 0.96 },
+            { y: 0, opacity: 1, scale: 1, duration: 0.6, stagger: 0.08 },
+            "-=0.3"
+          );
+        }
+      }, paketSectionRef);
+      return () => ctx.revert();
+    });
+
+    // Animate Menu Section
+    const cleanupMenu = setupObserver(menuSectionRef.current, () => {
+      const ctx = gsap.context(() => {
+        const tl = gsap.timeline({ defaults: { ease: "power2.out" } });
+        if (menuHeaderRef.current) {
+          tl.fromTo(
+            menuHeaderRef.current,
+            { y: 24, opacity: 0 },
+            { y: 0, opacity: 1, duration: 0.6 }
+          );
+        }
+        if (menuTabsRef.current) {
+          tl.fromTo(
+            menuTabsRef.current,
+            { y: 16, opacity: 0 },
+            { y: 0, opacity: 1, duration: 0.5 },
+            "-=0.3"
+          );
+        }
+        if (menuGridRef.current) {
+          const cards = menuGridRef.current.children;
+          tl.fromTo(
+            cards,
+            { y: 28, opacity: 0, scale: 0.96 },
+            { y: 0, opacity: 1, scale: 1, duration: 0.6, stagger: 0.06 },
+            "-=0.3"
+          );
+        }
+      }, menuSectionRef);
+      return () => ctx.revert();
+    });
+
+    // Animate Sauce Section
+    const cleanupSauce = setupObserver(sauceSectionRef.current, () => {
+      const ctx = gsap.context(() => {
+        const tl = gsap.timeline({ defaults: { ease: "power2.out" } });
+        if (sauceHeaderRef.current) {
+          tl.fromTo(
+            sauceHeaderRef.current,
+            { y: 20, opacity: 0 },
+            { y: 0, opacity: 1, duration: 0.6 }
+          );
+        }
+        if (sauceGridRef.current) {
+          const cards = sauceGridRef.current.children;
+          tl.fromTo(
+            cards,
+            { y: 20, opacity: 0, scale: 0.96 },
+            { y: 0, opacity: 1, scale: 1, duration: 0.5, stagger: 0.06 },
+            "-=0.3"
+          );
+        }
+      }, sauceSectionRef);
+      return () => ctx.revert();
+    });
+
+    return () => {
+      cleanupPaket();
+      cleanupMenu();
+      cleanupSauce();
+    };
+  }, []);
+
+  // 2. Smooth GSAP Transition when Category Filter Tab Changes
+  useEffect(() => {
+    if (menuGridRef.current) {
+      const cards = menuGridRef.current.children;
+      if (cards.length > 0) {
+        gsap.fromTo(
+          cards,
+          { opacity: 0, y: 14, scale: 0.98 },
+          { opacity: 1, y: 0, scale: 1, duration: 0.4, stagger: 0.04, ease: "power2.out" }
+        );
+      }
+    }
+  }, [activeCategory]);
 
   useEffect(() => {
     if (isClient) {
@@ -129,9 +268,13 @@ export function StoreClientView({
       <HeroSection />
 
       {/* 4. Packages Section */}
-      <section id="paket" className="py-12 md:py-16 px-4 sm:px-6 bg-[#EFECE3]/70 border-y border-[#E2DDD2]">
+      <section
+        ref={paketSectionRef}
+        id="paket"
+        className="py-12 md:py-16 px-4 sm:px-6 bg-[#EFECE3]/70 border-y border-[#E2DDD2]"
+      >
         <div className="max-w-6xl mx-auto">
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 mb-8">
+          <div ref={paketHeaderRef} className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 mb-8">
             <div>
               <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-[#16253D] tracking-tight font-display">
                 Paket
@@ -142,7 +285,7 @@ export function StoreClientView({
             </p>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-6">
+          <div ref={paketGridRef} className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-6">
             {packages.map((pkg) => (
               <PackageCard
                 key={pkg.id}
@@ -155,8 +298,12 @@ export function StoreClientView({
       </section>
 
       {/* 5. Main Catalog Menu Section */}
-      <section id="menu" className="py-12 md:py-16 px-4 sm:px-6 max-w-6xl mx-auto w-full flex-1">
-        <div className="text-center max-w-xl mx-auto mb-8">
+      <section
+        ref={menuSectionRef}
+        id="menu"
+        className="py-12 md:py-16 px-4 sm:px-6 max-w-6xl mx-auto w-full flex-1"
+      >
+        <div ref={menuHeaderRef} className="text-center max-w-xl mx-auto mb-8">
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-[#16253D] tracking-tight font-display">
             Menu Cireng
           </h2>
@@ -166,7 +313,7 @@ export function StoreClientView({
         </div>
 
         {/* Category Filter Tabs */}
-        <div className="flex items-center justify-center gap-2 overflow-x-auto pb-4 mb-8">
+        <div ref={menuTabsRef} className="flex items-center justify-center gap-2 overflow-x-auto pb-4 mb-8">
           {[
             { id: "ALL", label: "Semua Menu" },
             { id: "PACKAGES", label: "Paket" },
@@ -189,7 +336,7 @@ export function StoreClientView({
         </div>
 
         {/* Products Grid (2 columns on mobile) */}
-        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
+        <div ref={menuGridRef} className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
           {(activeCategory === "ALL" || activeCategory === "PRODUCTS") &&
             products.map((product) => (
               <ProductCard
@@ -211,9 +358,13 @@ export function StoreClientView({
       </section>
 
       {/* 6. Sauces & Add-ons Showcase (2 columns on mobile) */}
-      <section id="sauce" className="py-12 px-4 sm:px-6 bg-[#F4EFE6]/70 border-t border-[#E2DDD2]">
+      <section
+        ref={sauceSectionRef}
+        id="sauce"
+        className="py-12 px-4 sm:px-6 bg-[#F4EFE6]/70 border-t border-[#E2DDD2]"
+      >
         <div className="max-w-6xl mx-auto">
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 mb-8">
+          <div ref={sauceHeaderRef} className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 mb-8">
             <div>
               <h2 className="text-2xl sm:text-3xl font-black text-[#16253D] tracking-tight font-display">
                 Saus
@@ -224,11 +375,11 @@ export function StoreClientView({
             </p>
           </div>
 
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+          <div ref={sauceGridRef} className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
             {addons.map((addon) => (
               <div
                 key={addon.id}
-                className="bg-white p-3 sm:p-4 rounded-2xl border border-[#E2DDD2] shadow-2xs flex items-center justify-between gap-2"
+                className="bg-white p-3 sm:p-4 rounded-2xl border border-[#E2DDD2] shadow-2xs flex items-center justify-between gap-2 hover:-translate-y-0.5 transition-transform"
               >
                 <div className="min-w-0">
                   <h3 className="font-black text-xs sm:text-sm text-[#16253D] mb-0.5 truncate">

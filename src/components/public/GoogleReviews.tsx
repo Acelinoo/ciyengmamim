@@ -1,8 +1,10 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import { Star, MessageSquareQuote, ExternalLink } from "lucide-react";
+import gsap from "gsap";
 import {
-  GOOGLE_MAPS_REVIEW_URL,
+  GOOGLE_REVIEWS_WRITE_URL,
   GOOGLE_REVIEWS_SUMMARY,
   INITIAL_CUSTOMER_REVIEWS,
   CustomerReview,
@@ -36,8 +38,77 @@ interface GoogleReviewsProps {
 }
 
 export function GoogleReviews({ reviews = INITIAL_CUSTOMER_REVIEWS }: GoogleReviewsProps) {
+  const sectionRef = useRef<HTMLElement>(null);
+  const headerRef = useRef<HTMLDivElement>(null);
+  const ratingRef = useRef<HTMLDivElement>(null);
+  const gridRef = useRef<HTMLDivElement>(null);
+  const ctaRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el) return;
+
+    let hasAnimated = false;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const [entry] = entries;
+        if (entry.isIntersecting && !hasAnimated) {
+          hasAnimated = true;
+          observer.disconnect();
+
+          const ctx = gsap.context(() => {
+            const tl = gsap.timeline({ defaults: { ease: "power2.out" } });
+
+            if (headerRef.current) {
+              tl.fromTo(
+                headerRef.current,
+                { y: 24, opacity: 0 },
+                { y: 0, opacity: 1, duration: 0.7 }
+              );
+            }
+
+            if (ratingRef.current) {
+              tl.fromTo(
+                ratingRef.current,
+                { y: 24, opacity: 0, scale: 0.95 },
+                { y: 0, opacity: 1, scale: 1, duration: 0.7 },
+                "-=0.5"
+              );
+            }
+
+            if (gridRef.current) {
+              const cards = gridRef.current.children;
+              tl.fromTo(
+                cards,
+                { y: 30, opacity: 0, scale: 0.96 },
+                { y: 0, opacity: 1, scale: 1, duration: 0.6, stagger: 0.08 },
+                "-=0.4"
+              );
+            }
+
+            if (ctaRef.current) {
+              tl.fromTo(
+                ctaRef.current,
+                { y: 20, opacity: 0, scale: 0.98 },
+                { y: 0, opacity: 1, scale: 1, duration: 0.6 },
+                "-=0.2"
+              );
+            }
+          }, el);
+
+          return () => ctx.revert();
+        }
+      },
+      { threshold: 0.15 }
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <section
+      ref={sectionRef}
       id="ulasan"
       className="py-14 md:py-20 px-4 sm:px-6 bg-[#EFECE3]/70 border-t border-[#E2DDD2]"
       aria-label="Ulasan Pelanggan Google Reviews"
@@ -47,7 +118,7 @@ export function GoogleReviews({ reviews = INITIAL_CUSTOMER_REVIEWS }: GoogleRevi
         {/* 1. SECTION HEADER WITH GOOGLE RATING HIGHLIGHT                            */}
         {/* ========================================================================= */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-          <div className="space-y-2">
+          <div ref={headerRef} className="space-y-2">
             {/* Google Pill Badge */}
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-white border border-[#E2DDD2] rounded-full shadow-2xs">
               <GoogleIcon className="w-4 h-4 shrink-0" />
@@ -70,7 +141,10 @@ export function GoogleReviews({ reviews = INITIAL_CUSTOMER_REVIEWS }: GoogleRevi
           </div>
 
           {/* Rating Summary Card */}
-          <div className="bg-white border border-[#E2DDD2] p-4 sm:p-5 rounded-2xl sm:rounded-3xl shadow-xs flex items-center gap-4 shrink-0">
+          <div
+            ref={ratingRef}
+            className="bg-white border border-[#E2DDD2] p-4 sm:p-5 rounded-2xl sm:rounded-3xl shadow-xs flex items-center gap-4 shrink-0"
+          >
             <div className="text-center pr-3 border-r border-[#EFECE3]">
               <div className="flex items-center justify-center gap-1">
                 <span className="text-3xl sm:text-4xl font-black text-[#16253D] leading-none">
@@ -101,7 +175,7 @@ export function GoogleReviews({ reviews = INITIAL_CUSTOMER_REVIEWS }: GoogleRevi
         {/* ========================================================================= */}
         {/* 2. REVIEW CARDS GRID                                                      */}
         {/* ========================================================================= */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        <div ref={gridRef} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           {reviews.map((review) => (
             <div
               key={review.id}
@@ -155,19 +229,27 @@ export function GoogleReviews({ reviews = INITIAL_CUSTOMER_REVIEWS }: GoogleRevi
         </div>
 
         {/* ========================================================================= */}
-        {/* 3. CTA: BERIKAN ULASAN GOOGLE                                             */}
+        {/* 3. CTA: BERIKAN ULASAN GOOGLE (DEEP LINK FORM ULASAN)                     */}
         {/* ========================================================================= */}
-        <div className="bg-white border border-[#E2DDD2] rounded-3xl p-6 sm:p-8 text-center max-w-2xl mx-auto shadow-sm space-y-3">
-          <p className="text-xs sm:text-sm text-[#2C3E5A] font-semibold">
-            Punya pengalaman di Ciyeng Mamim? Bagikan ulasan kamu di Google.
-          </p>
+        <div
+          ref={ctaRef}
+          className="bg-white border border-[#E2DDD2] rounded-3xl p-6 sm:p-8 text-center max-w-2xl mx-auto shadow-sm space-y-4"
+        >
+          <div className="space-y-1">
+            <h3 className="text-base sm:text-lg font-black text-[#16253D]">
+              Punya pengalaman di Ciyeng Mamim?
+            </h3>
+            <p className="text-xs sm:text-sm text-[#2C3E5A] font-medium leading-relaxed max-w-lg mx-auto">
+              Bagikan pengalaman kamu di Google dan bantu pelanggan lain mengenal Ciyeng Mamim.
+            </p>
+          </div>
 
           <a
-            href={GOOGLE_MAPS_REVIEW_URL}
+            href={GOOGLE_REVIEWS_WRITE_URL}
             target="_blank"
             rel="noopener noreferrer"
             aria-label="Tulis Ulasan di Google Maps untuk Ciyeng Mamim"
-            className="inline-flex items-center justify-center gap-2.5 px-6 py-3.5 min-h-[48px] bg-[#16253D] hover:bg-[#1D2D44] text-white rounded-full font-black text-xs sm:text-sm shadow-md glow-navy border border-[#2C3E5A] active:scale-95 transition-all"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-7 py-3.5 min-h-[48px] bg-[#16253D] hover:bg-[#1D2D44] text-white rounded-full font-black text-xs sm:text-sm shadow-md glow-navy border border-[#2C3E5A] active:scale-95 transition-all"
           >
             <GoogleIcon className="w-4 h-4 shrink-0 bg-white rounded-full p-0.5" />
             <span>Berikan Ulasan di Google</span>

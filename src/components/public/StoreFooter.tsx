@@ -122,16 +122,7 @@ export function StoreFooter({ store, operational }: StoreFooterProps) {
         {/* Subfooter */}
         <div className="mt-12 pt-6 border-t border-[#1D2D44] flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-[#94A3B8]">
           <p>© 2026 {store.storeName} — Balikin Mood with Good Food ♡. All rights reserved.</p>
-          <div className="flex items-center gap-4">
-            <Link
-              href="/admin/login"
-              aria-label="Halaman Login Panel Admin"
-              className="text-[#94A3B8] hover:text-white transition-colors flex items-center gap-1.5 py-1 px-2"
-            >
-              <Lock className="w-3.5 h-3.5" />
-              <span>Admin Panel</span>
-            </Link>
-          </div>
+          <p className="text-[11px] text-[#64748B]">Soreang, Kabupaten Bandung</p>
         </div>
       </div>
     </footer>
