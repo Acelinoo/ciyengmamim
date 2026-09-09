@@ -35,10 +35,11 @@ export default function AdminLoginPage() {
         <div className="text-center mb-6">
           <div className="relative w-16 h-16 rounded-2xl overflow-hidden bg-[#16253D] p-1 mx-auto mb-3 shadow-sm border border-[#2C3E5A]">
             <Image
-              src="/images/logo.png"
+              src="/images/logo.webp"
               alt="Logo Ciyeng Mamim"
               fill
               className="object-contain"
+              priority
             />
           </div>
           <h1 className="text-xl sm:text-2xl font-black text-[#16253D] tracking-tight font-display">

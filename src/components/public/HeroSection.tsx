@@ -43,6 +43,7 @@ export function HeroSection() {
             fill
             sizes="(max-width: 640px) 176px, (max-width: 1024px) 288px, 336px"
             className="object-cover scale-110"
+            priority
           />
         </div>
       </div>
@@ -52,7 +53,7 @@ export function HeroSection() {
       {/* ========================================================================= */}
       <div className="relative z-20 max-w-4xl mx-auto text-center">
         {/* Brand Avatar Icon from Gambar 1 */}
-        <div className="relative w-20 h-20 md:w-24 md:h-24 mx-auto mb-3 rounded-3xl overflow-hidden bg-[#16253D] p-1 shadow-md border-2 border-[#2C3E5A]">
+        <div className="relative w-20 h-20 md:w-24 md:h-24 mx-auto mb-2 rounded-3xl overflow-hidden bg-[#16253D] p-1 shadow-md border-2 border-[#2C3E5A]">
           <Image
             src="/images/logo.webp"
             alt="Logo Ciyeng Mamim"
@@ -63,23 +64,34 @@ export function HeroSection() {
           />
         </div>
 
+        {/* Since 2007 Badge */}
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-white/90 border border-[#E2DDD2] rounded-full shadow-2xs mb-2">
+          <span className="w-1.5 h-1.5 rounded-full bg-[#EAA623]"></span>
+          <span className="text-[11px] font-black text-[#16253D] tracking-wider uppercase">Since 2007</span>
+          <span className="text-[#CFC8B8]">•</span>
+          <span className="text-[11px] font-bold text-[#5C4028]">Autentik & Renyah</span>
+        </div>
+
         {/* Big Display Hero Typography */}
-        <div className="relative select-none my-2 md:my-3">
+        <div className="relative select-none my-1 md:my-2">
           <h1 className="text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-black tracking-tighter text-[#16253D] leading-[0.9] lowercase font-display">
             ciyeng <br />
             <span className="text-[#1D2D44] tracking-tight">mamim</span>
           </h1>
         </div>
 
-        {/* Headline: Cireng Isi Premium Pertama dgn Creamy Ranch Sauce */}
-        <div className="my-4">
-          <h2 className="text-lg sm:text-2xl md:text-3xl font-black text-[#16253D] tracking-tight font-display max-w-2xl mx-auto leading-snug">
-            Cireng Isi Premium Pertama dgn{" "}
-            <span className="text-[#5C4028] underline decoration-[#EAA623] decoration-wavy decoration-2">
+        {/* Headline: ✨Lezatnya gaya Resto✨ */}
+        <div className="my-3 md:my-4">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-[#16253D] tracking-tight font-display max-w-2xl mx-auto leading-snug">
+            ✨ Lezatnya gaya Resto ✨
+          </h2>
+          <p className="text-xs sm:text-base md:text-lg text-[#5C4028] font-extrabold mt-1.5">
+            Cireng Isi Crispy Pertama dgn{" "}
+            <span className="underline decoration-[#EAA623] decoration-wavy decoration-2 text-[#16253D]">
               Creamy Ranch Sauce
             </span>
-          </h2>
-          <p className="max-w-lg md:max-w-xl mx-auto text-center text-xs sm:text-base text-[#2C3E5A] font-semibold mt-2 leading-relaxed px-2">
+          </p>
+          <p className="max-w-lg md:max-w-xl mx-auto text-center text-xs sm:text-sm text-[#2C3E5A] font-semibold mt-2 leading-relaxed px-2">
             Pilihan menu: <strong className="text-[#B91C1C]">Ayam Rica</strong>,{" "}
             <strong className="text-[#16253D]">Sapi Teriyaki</strong>,{" "}
             <strong className="text-[#5C4028]">Paru Rica</strong>,{" "}

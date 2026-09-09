@@ -6,25 +6,22 @@ import { formatRupiah } from "@/lib/whatsapp";
 import { processCheckoutAction } from "@/app/actions/checkout";
 import {
   X,
-  Upload,
-  Copy,
-  Check,
-  QrCode,
-  CreditCard,
-  Banknote,
   MessageCircle,
   AlertCircle,
   Loader2,
   ExternalLink,
-  CheckCircle2,
+  ShoppingBag,
+  User,
+  Phone,
+  MapPin,
+  FileText,
 } from "lucide-react";
-import Image from "next/image";
 
 interface CheckoutModalProps {
   isOpen: boolean;
   onClose: () => void;
   cartItems: CartItem[];
-  paymentSettings: PaymentSettingsType;
+  paymentSettings?: PaymentSettingsType;
   onSuccessOrder: () => void;
 }
 
@@ -32,26 +29,12 @@ export function CheckoutModal({
   isOpen,
   onClose,
   cartItems,
-  paymentSettings,
   onSuccessOrder,
 }: CheckoutModalProps) {
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
   const [customerAddress, setCustomerAddress] = useState("");
   const [customerNotes, setCustomerNotes] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState<"BANK_TRANSFER" | "QRIS" | "COD">(
-    paymentSettings.isBankActive
-      ? "BANK_TRANSFER"
-      : paymentSettings.isQrisActive
-      ? "QRIS"
-      : "COD"
-  );
-
-  const [isUploading, setIsUploading] = useState(false);
-  const [proofToken, setProofToken] = useState<string | null>(null);
-  const [proofPreviewUrl, setProofPreviewUrl] = useState<string | null>(null);
-  const [uploadError, setUploadError] = useState<string | null>(null);
-  const [copiedBank, setCopiedBank] = useState(false);
 
   const [isPending, startTransition] = useTransition();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -63,55 +46,10 @@ export function CheckoutModal({
     (sum, item) => sum + item.price * item.quantity,
     0
   );
-
-  const handleCopyAccount = () => {
-    navigator.clipboard.writeText(paymentSettings.accountNumber);
-    setCopiedBank(true);
-    setTimeout(() => setCopiedBank(false), 2000);
-  };
-
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    if (file.size > 10 * 1024 * 1024) {
-      setUploadError("Ukuran file maksimal 10MB.");
-      setProofToken(null);
-      setProofPreviewUrl(null);
-      return;
-    }
-
-    setIsUploading(true);
-    setUploadError(null);
-    setProofToken(null);
-
-    const localUrl = URL.createObjectURL(file);
-    setProofPreviewUrl(localUrl);
-
-    const formData = new FormData();
-    formData.append("file", file);
-
-    try {
-      const res = await fetch("/api/upload/proof", {
-        method: "POST",
-        body: formData,
-      });
-      const data = await res.json();
-
-      if (!res.ok || !data.success || !data.token) {
-        throw new Error(data.error || "Gagal mengunggah bukti pembayaran.");
-      }
-
-      setProofToken(data.token);
-      setUploadError(null);
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Gagal mengunggah file.";
-      setUploadError(msg);
-      setProofToken(null);
-    } finally {
-      setIsUploading(false);
-    }
-  };
+  const totalItemCount = cartItems.reduce(
+    (sum, item) => sum + item.quantity,
+    0
+  );
 
   const handleSubmitCheckout = () => {
     setErrorMessage(null);
@@ -122,11 +60,11 @@ export function CheckoutModal({
       return;
     }
     if (!customerPhone.trim() || customerPhone.trim().length < 8) {
-      setErrorMessage("Harap masukkan nomor WhatsApp yang aktif.");
+      setErrorMessage("Harap masukkan nomor WhatsApp yang aktif (minimal 8 digit).");
       return;
     }
     if (!customerAddress.trim() || customerAddress.trim().length < 3) {
-      setErrorMessage("Harap isi alamat lengkap atau info pengantaran.");
+      setErrorMessage("Harap isi alamat lengkap atau info pengantaran/ambil di toko.");
       return;
     }
 
@@ -136,8 +74,8 @@ export function CheckoutModal({
         customerPhone: customerPhone.trim(),
         customerAddress: customerAddress.trim(),
         customerNotes: customerNotes.trim(),
-        paymentMethod,
-        paymentProofToken: paymentMethod === "COD" ? "" : (proofToken || ""),
+        paymentMethod: "WHATSAPP" as const,
+        paymentProofToken: "",
         appOrigin: typeof window !== "undefined" ? window.location.origin : "",
         items: cartItems.map((item) => ({
           cartItemId: item.cartItemId,
@@ -169,22 +107,28 @@ export function CheckoutModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-[#16253D]/70 backdrop-blur-sm animate-fade-in">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-[#16253D]/75 backdrop-blur-sm animate-fade-in">
       <div
-        className="bg-[#F6F3EC] w-full max-w-xl rounded-3xl max-h-[92vh] flex flex-col shadow-2xl border border-[#E2DDD2] overflow-hidden"
+        className="bg-[#F6F3EC] w-full max-w-lg rounded-3xl max-h-[92vh] flex flex-col shadow-2xl border border-[#E2DDD2] overflow-hidden"
         role="dialog"
         aria-modal="true"
+        aria-labelledby="checkout-modal-title"
       >
         {/* Modal Header */}
         <div className="p-4 sm:p-5 bg-white border-b border-[#E2DDD2] flex items-center justify-between">
           <div>
-            <h2 className="font-black text-base sm:text-lg text-[#16253D]">
-              Checkout & Pembayaran
+            <h2 id="checkout-modal-title" className="font-black text-base sm:text-lg text-[#16253D]">
+              Data Pemesan & Checkout
             </h2>
-            <span className="text-xs text-[#5C4028] font-bold">
-              Total Tagihan:{" "}
-              <strong className="text-[#16253D]">{formatRupiah(totalAmount)}</strong>
-            </span>
+            <div className="flex items-center gap-2 mt-0.5">
+              <span className="text-xs text-[#5C4028] font-bold">
+                Total Tagihan:{" "}
+                <strong className="text-[#16253D] text-sm">{formatRupiah(totalAmount)}</strong>
+              </span>
+              <span className="text-[11px] text-[#877259] font-medium">
+                ({totalItemCount} item)
+              </span>
+            </div>
           </div>
           <button
             onClick={onClose}
@@ -196,31 +140,74 @@ export function CheckoutModal({
         </div>
 
         {/* Modal Scrollable Body */}
-        <div className="p-4 sm:p-6 overflow-y-auto space-y-6 flex-1">
-          {/* 1. DATA PEMESAN */}
+        <div className="p-4 sm:p-6 overflow-y-auto space-y-4 flex-1">
+          {/* Order Summary Snapshot */}
+          <div className="bg-white p-3.5 sm:p-4 rounded-2xl border border-[#E2DDD2] space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-black text-[#16253D] uppercase tracking-wider flex items-center gap-1.5">
+                <ShoppingBag className="w-3.5 h-3.5 text-[#5C4028]" />
+                <span>Ringkasan Menu</span>
+              </span>
+              <span className="text-xs font-black text-[#16253D]">
+                {formatRupiah(totalAmount)}
+              </span>
+            </div>
+            <div className="divide-y divide-[#F6F3EC] max-h-28 overflow-y-auto pr-1 space-y-1">
+              {cartItems.map((item) => (
+                <div
+                  key={item.cartItemId}
+                  className="pt-1 first:pt-0 flex items-center justify-between text-xs text-[#2C3E5A]"
+                >
+                  <span className="truncate pr-2 font-medium">
+                    <strong className="text-[#16253D]">{item.quantity}x</strong> {item.name}
+                    {item.selectedVariant && ` (${item.selectedVariant.name})`}
+                  </span>
+                  <span className="font-bold shrink-0 text-[#16253D]">
+                    {formatRupiah(item.price * item.quantity)}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Form Data Pemesan */}
           <div className="space-y-3.5 bg-white p-4 sm:p-5 rounded-2xl border border-[#E2DDD2]">
-            <h3 className="font-black text-xs sm:text-sm text-[#16253D] uppercase tracking-wider">
-              1. Data Pemesan
+            <h3 className="font-black text-xs sm:text-sm text-[#16253D] uppercase tracking-wider flex items-center gap-1.5">
+              <User className="w-4 h-4 text-[#5C4028]" />
+              <span>Informasi Pemesan</span>
             </h3>
 
+            {/* Nama Lengkap */}
             <div>
-              <label htmlFor="checkout-name" className="block text-xs font-bold text-[#2C3E5A] mb-1">
-                Nama Lengkap <span className="text-red-500">*</span>
+              <label
+                htmlFor="checkout-name"
+                className="block text-xs font-bold text-[#2C3E5A] mb-1 flex items-center gap-1"
+              >
+                <span>Nama Lengkap</span>
+                <span className="text-red-500">*</span>
               </label>
-              <input
-                id="checkout-name"
-                type="text"
-                value={customerName}
-                onChange={(e) => setCustomerName(e.target.value)}
-                placeholder="Contoh: Budi Santoso"
-                className="w-full px-3.5 py-2.5 min-h-[44px] rounded-xl border border-[#CFC8B8] text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#16253D] bg-[#F6F3EC] text-[#16253D]"
-                required
-              />
+              <div className="relative">
+                <input
+                  id="checkout-name"
+                  type="text"
+                  value={customerName}
+                  onChange={(e) => setCustomerName(e.target.value)}
+                  placeholder="Contoh: Budi Santoso"
+                  className="w-full px-3.5 py-2.5 min-h-[44px] rounded-xl border border-[#CFC8B8] text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#16253D] bg-[#F6F3EC] text-[#16253D]"
+                  required
+                />
+              </div>
             </div>
 
+            {/* Nomor WhatsApp */}
             <div>
-              <label htmlFor="checkout-phone" className="block text-xs font-bold text-[#2C3E5A] mb-1">
-                Nomor WhatsApp <span className="text-red-500">*</span>
+              <label
+                htmlFor="checkout-phone"
+                className="block text-xs font-bold text-[#2C3E5A] mb-1 flex items-center gap-1"
+              >
+                <Phone className="w-3 h-3 text-[#5C4028]" />
+                <span>Nomor WhatsApp Aktif</span>
+                <span className="text-red-500">*</span>
               </label>
               <input
                 id="checkout-phone"
@@ -233,9 +220,15 @@ export function CheckoutModal({
               />
             </div>
 
+            {/* Alamat / Pengantaran */}
             <div>
-              <label htmlFor="checkout-address" className="block text-xs font-bold text-[#2C3E5A] mb-1">
-                Alamat Lengkap / Info Pengantaran <span className="text-red-500">*</span>
+              <label
+                htmlFor="checkout-address"
+                className="block text-xs font-bold text-[#2C3E5A] mb-1 flex items-center gap-1"
+              >
+                <MapPin className="w-3 h-3 text-[#5C4028]" />
+                <span>Alamat Lengkap / Info Pengantaran</span>
+                <span className="text-red-500">*</span>
               </label>
               <textarea
                 id="checkout-address"
@@ -248,243 +241,39 @@ export function CheckoutModal({
               />
             </div>
 
+            {/* Catatan Khusus */}
             <div>
-              <label htmlFor="checkout-notes" className="block text-xs font-bold text-[#2C3E5A] mb-1">
-                Catatan Pesanan Khusus (Opsional)
+              <label
+                htmlFor="checkout-notes"
+                className="block text-xs font-bold text-[#2C3E5A] mb-1 flex items-center gap-1"
+              >
+                <FileText className="w-3 h-3 text-[#5C4028]" />
+                <span>Catatan Khusus (Opsional)</span>
               </label>
               <input
                 id="checkout-notes"
                 type="text"
                 value={customerNotes}
                 onChange={(e) => setCustomerNotes(e.target.value)}
-                placeholder="Contoh: Sambal dipisah ya kak"
+                placeholder="Contoh: Sambal dipisah ya kak, jangan terlalu pedas"
                 className="w-full px-3.5 py-2.5 min-h-[44px] rounded-xl border border-[#CFC8B8] text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#16253D] bg-[#F6F3EC] text-[#16253D]"
               />
             </div>
           </div>
 
-          {/* 2. METODE PEMBAYARAN */}
-          <div className="space-y-4 bg-white p-4 sm:p-5 rounded-2xl border border-[#E2DDD2]">
-            <h3 className="font-black text-xs sm:text-sm text-[#16253D] uppercase tracking-wider">
-              2. Pilih Metode Pembayaran
-            </h3>
-
-            {/* Payment Method Selector */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
-              {paymentSettings.isBankActive && (
-                <button
-                  type="button"
-                  onClick={() => setPaymentMethod("BANK_TRANSFER")}
-                  className={`p-3 min-h-[48px] rounded-2xl border flex flex-col items-center gap-1.5 transition-all text-center ${
-                    paymentMethod === "BANK_TRANSFER"
-                      ? "border-[#16253D] bg-[#16253D] text-white shadow-sm"
-                      : "border-[#CFC8B8] bg-[#F6F3EC] text-[#2C3E5A] hover:bg-[#EFECE3]"
-                  }`}
-                >
-                  <CreditCard className="w-5 h-5" />
-                  <span className="font-bold text-xs">Transfer Bank</span>
-                  <span className="text-[10px] opacity-80">{paymentSettings.bankName}</span>
-                </button>
-              )}
-
-              {paymentSettings.isQrisActive && (
-                <button
-                  type="button"
-                  onClick={() => setPaymentMethod("QRIS")}
-                  className={`p-3 min-h-[48px] rounded-2xl border flex flex-col items-center gap-1.5 transition-all text-center ${
-                    paymentMethod === "QRIS"
-                      ? "border-[#16253D] bg-[#16253D] text-white shadow-sm"
-                      : "border-[#CFC8B8] bg-[#F6F3EC] text-[#2C3E5A] hover:bg-[#EFECE3]"
-                  }`}
-                >
-                  <QrCode className="w-5 h-5" />
-                  <span className="font-bold text-xs">QRIS Dinamis</span>
-                  <span className="text-[10px] opacity-80">E-Wallet</span>
-                </button>
-              )}
-
-              {paymentSettings.isCodActive && (
-                <button
-                  type="button"
-                  onClick={() => setPaymentMethod("COD")}
-                  className={`p-3 rounded-2xl border flex flex-col items-center gap-1.5 transition-all text-center ${
-                    paymentMethod === "COD"
-                      ? "border-[#16253D] bg-[#16253D] text-white shadow-sm"
-                      : "border-[#CFC8B8] bg-[#F6F3EC] text-[#4B5E7A] hover:bg-[#EFECE3]"
-                  }`}
-                >
-                  <Banknote className="w-5 h-5" />
-                  <span className="font-bold text-xs">Bayar di Tempat</span>
-                  <span className="text-[10px] opacity-80">COD / Tunai</span>
-                </button>
-              )}
+          {/* Friendly Instant Order Notification */}
+          <div className="bg-[#EBF1F8] p-3.5 sm:p-4 rounded-2xl border border-[#D5E2F1] text-xs text-[#16253D] space-y-1">
+            <div className="flex items-center gap-1.5 font-black text-[#1D2D44]">
+              <MessageCircle className="w-4 h-4 text-[#25D366]" />
+              <span>Pemesanan Langsung via WhatsApp</span>
             </div>
-
-            {/* Bank Details Display */}
-            {paymentMethod === "BANK_TRANSFER" && paymentSettings.isBankActive && (
-              <div className="p-4 bg-[#F6F3EC] rounded-2xl border border-[#E2DDD2] space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-black text-[#16253D]">
-                    {paymentSettings.bankName}
-                  </span>
-                  <span className="text-[11px] font-bold text-[#877259]">
-                    a.n {paymentSettings.accountHolder}
-                  </span>
-                </div>
-
-                <div className="flex items-center justify-between bg-white p-3 rounded-xl border border-[#CFC8B8]">
-                  <span className="font-mono font-black text-sm tracking-wider text-[#16253D]">
-                    {paymentSettings.accountNumber}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={handleCopyAccount}
-                    className="flex items-center gap-1 px-3 py-1 bg-[#16253D] text-white rounded-lg text-xs font-bold hover:bg-[#1D2D44] transition-colors"
-                  >
-                    {copiedBank ? (
-                      <>
-                        <Check className="w-3.5 h-3.5 text-[#25D366]" />
-                        <span>Tersalin</span>
-                      </>
-                    ) : (
-                      <>
-                        <Copy className="w-3.5 h-3.5" />
-                        <span>Salin Rekening</span>
-                      </>
-                    )}
-                  </button>
-                </div>
-
-                {paymentSettings.bankNotes && (
-                  <p className="text-[11px] text-[#4B5E7A] italic leading-tight">
-                    * {paymentSettings.bankNotes}
-                  </p>
-                )}
-              </div>
-            )}
-
-            {/* QRIS Display */}
-            {paymentMethod === "QRIS" && paymentSettings.isQrisActive && (
-              <div className="p-4 bg-[#F6F3EC] rounded-2xl border border-[#E2DDD2] flex flex-col items-center text-center space-y-3">
-                <span className="text-xs font-bold text-[#4B5E7A]">
-                  Scan kode QRIS di bawah ini melalui BCA, Mandiri, GoPay, OVO, ShopeePay, DANA:
-                </span>
-                <div className="relative w-48 h-48 sm:w-56 sm:h-56 bg-white p-2 rounded-2xl border-2 border-[#16253D] shadow-sm">
-                  <Image
-                    src={paymentSettings.qrisImageUrl || "/images/cireng-kuah.jpg"}
-                    alt="QRIS Pembayaran Ciyeng Mamim"
-                    fill
-                    className="object-contain p-2"
-                    unoptimized
-                  />
-                </div>
-                {paymentSettings.qrisNmid && (
-                  <span className="text-[10px] font-mono text-[#877259]">
-                    NMID: {paymentSettings.qrisNmid}
-                  </span>
-                )}
-              </div>
-            )}
-
-            {/* COD Details Display */}
-            {paymentMethod === "COD" && paymentSettings.isCodActive && (
-              <div className="p-4 bg-[#F6F3EC] rounded-2xl border border-[#E2DDD2] space-y-2">
-                <div className="flex items-center gap-2 text-xs font-black text-[#16253D]">
-                  <Banknote className="w-4 h-4 text-[#25D366]" />
-                  <span>Bayar di Tempat (COD / Tunai)</span>
-                </div>
-                <p className="text-xs text-[#4B5E7A] leading-relaxed">
-                  {paymentSettings.codNotes ||
-                    "Bayar tunai/cash langsung saat pesanan diambil atau diantar."}
-                </p>
-              </div>
-            )}
+            <p className="text-[11px] sm:text-xs text-[#2C3E5A] leading-relaxed">
+              Setelah menekan tombol di bawah, pesanan Anda akan otomatis dirangkai dan dikirimkan ke chat WhatsApp Ciyeng Mamim untuk konfirmasi ketersediaan dan metode pembayaran.
+            </p>
           </div>
-
-          {/* 3. UPLOAD BUKTI PEMBAYARAN */}
-          {paymentMethod === "COD" ? (
-            <div className="bg-[#F0FDF4] p-4 sm:p-5 rounded-2xl border border-[#DCFCE7] space-y-1.5">
-              <div className="flex items-center gap-2 text-xs sm:text-sm font-black text-[#15803D]">
-                <CheckCircle2 className="w-4 h-4 shrink-0" />
-                <span>Metode Bayar di Tempat (COD) Dipilih</span>
-              </div>
-              <p className="text-xs text-[#166534] leading-relaxed">
-                Anda tidak perlu mengunggah foto bukti transfer. Pembayaran dilakukan secara tunai/cash saat pesanan diterima.
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-3 bg-white p-4 sm:p-5 rounded-2xl border border-[#E2DDD2]">
-              <div className="flex items-center justify-between">
-                <h3 className="font-black text-xs sm:text-sm text-[#16253D] uppercase tracking-wider">
-                  3. Upload Bukti Pembayaran
-                </h3>
-                <span className="text-[11px] text-[#877259] font-bold">
-                  (Opsional / Bisa kirim di WA)
-                </span>
-              </div>
-
-              {/* Dropzone Container */}
-              <label className="relative border-2 border-dashed border-[#CFC8B8] hover:border-[#16253D] bg-[#F6F3EC] p-4 rounded-2xl flex flex-col items-center justify-center text-center cursor-pointer transition-colors group">
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileChange}
-                  disabled={isUploading}
-                  className="sr-only"
-                />
-
-                {isUploading ? (
-                  <div className="py-4 flex flex-col items-center gap-2">
-                    <Loader2 className="w-7 h-7 text-[#16253D] animate-spin" />
-                    <span className="text-xs font-bold text-[#4B5E7A]">
-                      Memproses & mengunggah bukti ke server...
-                    </span>
-                  </div>
-                ) : proofToken && proofPreviewUrl ? (
-                  <div className="py-2 flex flex-col items-center gap-2">
-                    <div className="relative w-28 h-28 rounded-xl overflow-hidden border-2 border-[#15803D] shadow-sm">
-                      <Image
-                        src={proofPreviewUrl}
-                        alt="Preview Bukti"
-                        fill
-                        className="object-cover"
-                        unoptimized
-                      />
-                    </div>
-                    <div className="flex items-center gap-1.5 text-xs font-black text-[#15803D]">
-                      <CheckCircle2 className="w-4 h-4" />
-                      <span>Bukti berhasil diunggah (Link aktif)</span>
-                    </div>
-                    <span className="text-[10px] text-[#877259]">
-                      Klik kotak untuk mengganti foto
-                    </span>
-                  </div>
-                ) : (
-                  <div className="py-4 flex flex-col items-center gap-1.5">
-                    <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-[#16253D] shadow-2xs group-hover:scale-110 transition-transform border border-[#E2DDD2]">
-                      <Upload className="w-5 h-5" />
-                    </div>
-                    <span className="text-xs font-black text-[#16253D]">
-                      Pilih Screenshot / Foto Struk Bayar
-                    </span>
-                    <span className="text-[11px] text-[#877259]">
-                      JPG, PNG, WEBP (Maksimal 10MB)
-                    </span>
-                  </div>
-                )}
-              </label>
-
-              {uploadError && (
-                <div className="bg-red-50 border border-red-200 text-red-700 text-xs p-3 rounded-xl font-bold flex items-center gap-2">
-                  <AlertCircle className="w-4 h-4 shrink-0" />
-                  <span>{uploadError}</span>
-                </div>
-              )}
-            </div>
-          )}
         </div>
 
-        {/* Sticky Submit Bottom Bar (Always visible) */}
+        {/* Sticky Submit Bottom Bar */}
         <div className="p-4 sm:p-5 bg-white border-t border-[#E2DDD2] space-y-3">
           {/* Prominent Error Alert */}
           {errorMessage && (
@@ -510,7 +299,7 @@ export function CheckoutModal({
           <button
             type="button"
             onClick={handleSubmitCheckout}
-            disabled={isPending || isUploading}
+            disabled={isPending}
             className="w-full py-4 bg-[#25D366] hover:bg-[#1EBE5D] text-white font-black text-sm sm:text-base rounded-full shadow-lg flex items-center justify-center gap-2.5 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed border border-[#1EBE5D]"
           >
             {isPending ? (

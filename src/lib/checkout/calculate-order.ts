@@ -34,10 +34,12 @@ export async function calculateAndVerifyOrder(
       ? "Bayar di Tempat (COD / Tunai)"
       : payload.paymentMethod === "QRIS"
       ? "QRIS (Scan Barcode)"
-      : `Transfer Bank ${payment?.bankName || INITIAL_PAYMENT_SETTINGS.bankName}`;
+      : payload.paymentMethod === "BANK_TRANSFER"
+      ? `Transfer Bank ${payment?.bankName || INITIAL_PAYMENT_SETTINGS.bankName}`
+      : "Konfirmasi via WhatsApp";
 
   // 2. Format Bukti Pembayaran
-  let proofUrl = "Belum diunggah (akan dikirim manual via chat WhatsApp)";
+  let proofUrl = "";
   if (payload.paymentMethod === "COD") {
     proofUrl = "Bayar Tunai saat pesanan diterima";
   } else if (payload.paymentProofToken && payload.paymentProofToken.trim() !== "") {

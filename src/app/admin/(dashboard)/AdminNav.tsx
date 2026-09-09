@@ -49,10 +49,11 @@ export function AdminNav({ user }: AdminNavProps) {
           <div className="flex items-center gap-2.5">
             <div className="relative w-10 h-10 rounded-xl overflow-hidden bg-[#16253D] p-0.5 border border-[#2C3E5A] shrink-0">
               <Image
-                src="/images/logo.png"
+                src="/images/logo.webp"
                 alt="Logo Ciyeng Mamim"
                 fill
                 className="object-contain"
+                priority
               />
             </div>
             <div>

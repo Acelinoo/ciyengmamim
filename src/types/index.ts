@@ -102,8 +102,8 @@ export interface CheckoutPayload {
   customerPhone: string;
   customerAddress: string;
   customerNotes?: string;
-  paymentMethod: "BANK_TRANSFER" | "QRIS" | "COD";
-  paymentProofToken: string;
+  paymentMethod?: "BANK_TRANSFER" | "QRIS" | "COD" | "WHATSAPP";
+  paymentProofToken?: string | null;
   appOrigin?: string;
   items: {
     cartItemId: string;

@@ -57,6 +57,11 @@ export function buildWhatsAppOrderMessage(props: WhatsAppMessageProps): string {
     ? props.customerNotes.trim()
     : "Tidak ada catatan khusus.";
 
+  let paymentExtra = "";
+  if (props.paymentProofUrl && props.paymentProofUrl.trim() !== "") {
+    paymentExtra = `\nBukti Pembayaran (Link):\n${props.paymentProofUrl}\n`;
+  }
+
   return `Halo Ciyeng Mamim, saya ingin memesan:
 
 ━━━━━━━━━━━━━━━━━━━━
@@ -76,17 +81,11 @@ Catatan Khusus:
 ${notesText}
 
 ━━━━━━━━━━━━━━━━━━━━
-💰 TOTAL & PEMBAYARAN
+💰 TOTAL PEMBAYARAN
 ━━━━━━━━━━━━━━━━━━━━
-Total Pembayaran: ${formatRupiah(props.totalPrice)}
-Metode Pembayaran: ${props.paymentMethodName}
+Total Tagihan: ${formatRupiah(props.totalPrice)}${paymentExtra}
 
-Bukti Pembayaran (Private Signed Link):
-${props.paymentProofUrl}
-
-⚠️ Catatan: Pesanan akan diproses setelah bukti pembayaran diverifikasi oleh Admin.
-
-Terima kasih! Mohon segera diproses ya kak 🙏✨`;
+Mohon konfirmasi ketersediaan menu & info pembayarannya ya kak. Terima kasih! 🙏✨`;
 }
 
 /**

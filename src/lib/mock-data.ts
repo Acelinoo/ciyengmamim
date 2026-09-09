@@ -24,7 +24,7 @@ export const INITIAL_OPERATIONAL_SETTINGS: OperationalSettingsType = {
   id: "default_operational",
   isStoreOpen: true,
   autoSchedule: true,
-  openTime: "10:00",
+  openTime: "15:00",
   closeTime: "21:00",
   closedDays: ["Senin"],
   closedMessage:

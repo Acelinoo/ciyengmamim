@@ -14,9 +14,10 @@ export const CheckoutPayloadSchema = z.object({
     .min(3, "Alamat / Info Pengantaran minimal 3 karakter")
     .max(300, "Alamat maksimal 300 karakter"),
   customerNotes: z.string().max(200, "Catatan maksimal 200 karakter").optional().default(""),
-  paymentMethod: z.enum(["BANK_TRANSFER", "QRIS", "COD"], {
-    message: "Pilih salah satu metode pembayaran",
-  }),
+  paymentMethod: z
+    .enum(["BANK_TRANSFER", "QRIS", "COD", "WHATSAPP"])
+    .optional()
+    .default("WHATSAPP"),
   paymentProofToken: z.string().optional().nullable().default(""),
   appOrigin: z.string().optional(),
   items: z

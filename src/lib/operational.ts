@@ -66,27 +66,46 @@ export function calculateOperationalStatus(
   const dayIndex = wibDate.getDay();
   const currentDayName = INDONESIAN_DAYS[dayIndex];
 
-  // 4. Cek apakah hari ini hari libur
-  if (settings.closedDays && settings.closedDays.includes(currentDayName)) {
+  // 4. Cek apakah hari ini hari libur (Senin)
+  const isClosedDay =
+    currentDayName === "Senin" ||
+    (settings.closedDays && settings.closedDays.includes(currentDayName));
+
+  if (isClosedDay) {
     return {
       isOpen: false,
       statusText: "LIBUR",
       badgeColor: "rose",
-      message: `Hari ini (${currentDayName}) toko libur. Kami buka kembali besok!`,
-      nextScheduleInfo: `Buka kembali di hari kerja: ${settings.openTime} - ${settings.closeTime} WIB`,
+      message: `Hari ini (${currentDayName}) toko libur. Buka kembali Selasa pukul 15.00 WIB!`,
+      nextScheduleInfo: "Selasa–Sabtu: 15.00–21.00 WIB • Minggu: 08.00–21.00 WIB (Senin Libur)",
     };
   }
 
-  // 5. Cek Jam Operasional
+  // 5. Tentukan Jam Operasional Hari Ini:
+  // - Minggu: 08:00 - 21:00
+  // - Selasa s/d Sabtu: 15:00 - 21:00
+  let dayOpenTime = settings.openTime || "15:00";
+  let dayCloseTime = settings.closeTime || "21:00";
+
+  if (currentDayName === "Minggu") {
+    dayOpenTime = "08:00";
+    dayCloseTime = "21:00";
+  } else {
+    dayOpenTime = "15:00";
+    dayCloseTime = "21:00";
+  }
+
   const currentHour = wibDate.getHours();
   const currentMinute = wibDate.getMinutes();
   const currentTotalMinutes = currentHour * 60 + currentMinute;
 
-  const [openHour, openMin] = settings.openTime.split(":").map(Number);
-  const [closeHour, closeMin] = settings.closeTime.split(":").map(Number);
+  const [openHour, openMin] = dayOpenTime.split(":").map(Number);
+  const [closeHour, closeMin] = dayCloseTime.split(":").map(Number);
 
   const openTotalMinutes = openHour * 60 + openMin;
   const closeTotalMinutes = closeHour * 60 + closeMin;
+
+  const scheduleSummary = "Selasa–Sabtu: 15.00–21.00 • Minggu: 08.00–21.00 (Senin Libur)";
 
   if (
     currentTotalMinutes >= openTotalMinutes &&
@@ -96,8 +115,8 @@ export function calculateOperationalStatus(
       isOpen: true,
       statusText: "BUKA",
       badgeColor: "green",
-      message: `Toko sedang buka • Melayani pesanan hingga pukul ${settings.closeTime} WIB`,
-      nextScheduleInfo: `Buka hari ini: ${settings.openTime} - ${settings.closeTime} WIB`,
+      message: `Toko sedang buka • Melayani pesanan hingga pukul ${dayCloseTime} WIB`,
+      nextScheduleInfo: `Buka hari ini: ${dayOpenTime} - ${dayCloseTime} WIB (${scheduleSummary})`,
     };
   }
 
@@ -105,7 +124,7 @@ export function calculateOperationalStatus(
     isOpen: false,
     statusText: "TUTUP",
     badgeColor: "amber",
-    message: `Toko sedang tutup. Buka kembali pukul ${settings.openTime} WIB.`,
-    nextScheduleInfo: `Jam operasional: ${settings.openTime} - ${settings.closeTime} WIB`,
+    message: `Toko sedang tutup. Buka kembali pukul ${dayOpenTime} WIB.`,
+    nextScheduleInfo: scheduleSummary,
   };
 }

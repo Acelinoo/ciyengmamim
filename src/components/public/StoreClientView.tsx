@@ -141,7 +141,7 @@ export function StoreClientView({
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-6">
             {packages.map((pkg) => (
               <PackageCard
                 key={pkg.id}
@@ -187,8 +187,8 @@ export function StoreClientView({
           ))}
         </div>
 
-        {/* Products Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* Products Grid (2 columns on mobile) */}
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
           {(activeCategory === "ALL" || activeCategory === "PRODUCTS") &&
             products.map((product) => (
               <ProductCard
@@ -209,7 +209,7 @@ export function StoreClientView({
         </div>
       </section>
 
-      {/* 6. Sauces & Add-ons Showcase */}
+      {/* 6. Sauces & Add-ons Showcase (2 columns on mobile) */}
       <section id="sauce" className="py-12 px-4 sm:px-6 bg-[#F4EFE6]/70 border-t border-[#E2DDD2]">
         <div className="max-w-6xl mx-auto">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 mb-8">
@@ -223,24 +223,24 @@ export function StoreClientView({
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
             {addons.map((addon) => (
               <div
                 key={addon.id}
-                className="bg-white p-4 rounded-2xl border border-[#E2DDD2] shadow-2xs flex items-center justify-between"
+                className="bg-white p-3 sm:p-4 rounded-2xl border border-[#E2DDD2] shadow-2xs flex items-center justify-between gap-2"
               >
-                <div>
-                  <h3 className="font-black text-sm text-[#16253D] mb-0.5">
+                <div className="min-w-0">
+                  <h3 className="font-black text-xs sm:text-sm text-[#16253D] mb-0.5 truncate">
                     {addon.name}
                   </h3>
-                  <p className="text-[11px] text-[#2C3E5A] line-clamp-1 mb-1 font-medium">
+                  <p className="text-[10px] sm:text-[11px] text-[#2C3E5A] line-clamp-1 mb-1 font-medium">
                     {addon.description}
                   </p>
                   <span className="text-xs font-black text-[#5C4028]">
                     {formatRupiah(addon.price)}
                   </span>
                 </div>
-                <div className="w-8 h-8 rounded-full bg-[#EBF1F8] flex items-center justify-center text-sm shadow-2xs">
+                <div className="w-8 h-8 rounded-full bg-[#EBF1F8] flex items-center justify-center text-sm shadow-2xs shrink-0">
                   🥣
                 </div>
               </div>

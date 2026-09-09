@@ -28,11 +28,16 @@ export function StoreFooter({ store, operational }: StoreFooterProps) {
                 />
               </div>
               <div>
-                <span className="text-xl font-black text-white font-display block">
-                  ciyeng mamim
-                </span>
-                <span className="text-[10px] text-[#EAA623] font-bold">
-                  Balikin Mood with Good Food ♡
+                <div className="flex items-center gap-2">
+                  <span className="text-xl font-black text-white font-display">
+                    ciyeng mamim
+                  </span>
+                  <span className="px-2 py-0.5 bg-[#1D2D44] text-[#EAA623] text-[10px] font-black rounded-full border border-[#2C3E5A]">
+                    Since 2007
+                  </span>
+                </div>
+                <span className="text-[11px] text-[#EAA623] font-bold block">
+                  ✨ Lezatnya gaya Resto ✨
                 </span>
               </div>
             </div>
@@ -72,17 +77,19 @@ export function StoreFooter({ store, operational }: StoreFooterProps) {
               <Clock className="w-4 h-4 text-[#EAA623]" />
               <span>Jam Operasional Toko</span>
             </h3>
-            <p className="text-xs sm:text-sm text-[#94A3B8]">
-              Buka setiap hari:{" "}
-              <strong className="text-white">
-                {operational.openTime} - {operational.closeTime} WIB
-              </strong>
-            </p>
-            {operational.closedDays && operational.closedDays.length > 0 && (
-              <p className="text-xs text-[#F87171] font-bold">
-                Libur rutin: {operational.closedDays.join(", ")}
+            <div className="text-xs sm:text-sm text-[#94A3B8] space-y-1">
+              <p>
+                Selasa – Sabtu:{" "}
+                <strong className="text-white">15.00 – 21.00 WIB</strong>
               </p>
-            )}
+              <p>
+                Minggu:{" "}
+                <strong className="text-white">08.00 – 21.00 WIB</strong>
+              </p>
+              <p className="text-[#F87171] font-bold">
+                Senin: Libur Rutin
+              </p>
+            </div>
             <p className="text-[11px] text-[#94A3B8] pt-1">
               Pesanan online langsung diteruskan ke WhatsApp toko.
             </p>

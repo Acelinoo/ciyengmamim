@@ -43,9 +43,12 @@ export function HeaderNav({
               <span className="text-xl md:text-2xl font-black tracking-tight text-[#16253D] block font-display leading-tight">
                 ciyeng mamim
               </span>
+              <span className="px-1.5 py-0.5 bg-[#16253D] text-[#EAA623] text-[9px] font-black rounded-md tracking-wider">
+                Since 2007
+              </span>
             </div>
-            <span className="text-[10px] md:text-xs text-[#5C4028] font-extrabold tracking-wider uppercase flex items-center gap-1">
-              Balikin Mood with Good Food ♡
+            <span className="text-[10px] md:text-xs text-[#5C4028] font-black tracking-wide flex items-center gap-1">
+              ✨ Lezatnya gaya Resto ✨
             </span>
           </div>
         </a>

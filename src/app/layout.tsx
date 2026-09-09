@@ -11,9 +11,9 @@ const plusJakarta = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Ciyeng Mamim — Cireng Crispy Renyah & Aneka Saus Spesial",
+  title: "Ciyeng Mamim — ✨ Lezatnya gaya Resto ✨ | Since 2007",
   description:
-    "Pesan Cireng Crispy Ciyeng Mamim online dengan aneka pilihan saus spesial: Taichan Pedas, Creamy Ranch, & Cheese. Fresh digoreng dadakan!",
+    "Cireng Isi Crispy Renyah Ciyeng Mamim sejak 2007. Pilihan isi: Ayam Rica, Sapi Teriyaki, Paru Rica, Pizza, & Keju dengan Saus Creamy Ranch Spesial!",
   keywords: [
     "Cireng Crispy",
     "Ciyeng Mamim",
@@ -24,6 +24,17 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: "Ciyeng Mamim" }],
   creator: "Marchelino Kurniawan (Acelino)",
+  icons: {
+    icon: [
+      { url: "/icon.png", type: "image/png" },
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/images/logo.png", sizes: "192x192", type: "image/png" },
+    ],
+    shortcut: "/favicon.ico",
+    apple: [
+      { url: "/apple-icon.png", sizes: "180x180", type: "image/png" },
+    ],
+  },
   openGraph: {
     title: "Ciyeng Mamim — Cireng Crispy & Saus Spesial",
     description: "Pemesanan cireng instan langsung via WhatsApp.",
