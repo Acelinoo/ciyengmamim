@@ -18,14 +18,29 @@ export interface GoogleReviewsSummary {
   totalReviewsText: string;
 }
 
-export const GOOGLE_MAPS_PLACE_URL =
-  "https://www.google.com/maps/place/Ciyeng+Mamim+(Cireng+isi+PREMIUM)/@-7.022391,107.5423507,17z/data=!4m8!3m7!1s0x2e68ed0069a4a477:0xfe01ca13fc50ae11!8m2!3d-7.022391!4d107.5423507!9m1!1b1!16s%2Fg%2F11zgcxh3wm?entry=ttu&g_ep=EgoyMDI2MDkwMi4wIKXMDSoASAFQAw%3D%3D";
+// =========================================================================
+// GOOGLE MAPS & REVIEWS IDENTIFIERS — CIYENG MAMIM (Cireng isi PREMIUM)
+// =========================================================================
+// Terverifikasi dari Listing Google Maps Resmi:
+// - CID Hex: 0x2e68ed0069a4a477:0xfe01ca13fc50ae11
+// - CID Decimal (ludocid): 18303132547796741649
+// - Knowledge Graph MID (kgmid): /g/11zgcxh3wm
+// - Koordinat: -7.022391, 107.5423507 (Soreang, Bandung)
 
-// Deep Link Google Reviews: Membuka langsung popup form bintang & penulisan ulasan Google
-// Menggunakan kgmid=%2Fg%2F11zgcxh3wm dan nfpr=1 agar Google Search TIDAK meng-autocorrect kata "Ciyeng" menjadi "Cireng Mama"
-// dan langsung memicu dialog Tulis Ulasan Google (#lrd=0x2e68ed0069a4a477:0xfe01ca13fc50ae11,3)
-export const GOOGLE_REVIEWS_WRITE_URL =
-  "https://www.google.com/search?hl=id-ID&gl=id&q=Ciyeng+Mamim+(Cireng+isi+PREMIUM)&kgmid=%2Fg%2F11zgcxh3wm&ludocid=18303132547796741649&nfpr=1#lrd=0x2e68ed0069a4a477:0xfe01ca13fc50ae11,3";
+// 1. Google Place ID resmi (Format: ChIJ... dari Google Places API / Google Business Profile).
+// Jika Anda memiliki API Key atau telah mengklaim Profil Bisnis Google, masukkan string ChIJ di sini:
+export const GOOGLE_PLACE_ID = "";
+
+// 2. Listing Resmi Google Maps Ciyeng Mamim (Tab Ulasan: !9m1!1b1)
+export const GOOGLE_MAPS_PLACE_URL =
+  "https://www.google.com/maps/place/Ciyeng+Mamim+(Cireng+isi+PREMIUM)/@-7.022391,107.5423507,17z/data=!4m8!3m7!1s0x2e68ed0069a4a477:0xfe01ca13fc50ae11!8m2!3d-7.022391!4d107.5423507!9m1!1b1!16s%2Fg%2F11zgcxh3wm";
+
+// 3. Target URL Tombol "Berikan Ulasan di Google":
+// - Prioritas 1: Google Write Review resmi (https://search.google.com/local/writereview?placeid=PLACE_ID) jika GOOGLE_PLACE_ID terisi
+// - Prioritas 2: Fallback ke listing Google Maps resmi Ciyeng Mamim bagian ulasan
+export const GOOGLE_REVIEWS_WRITE_URL = GOOGLE_PLACE_ID
+  ? `https://search.google.com/local/writereview?placeid=${GOOGLE_PLACE_ID}`
+  : GOOGLE_MAPS_PLACE_URL;
 
 export const GOOGLE_MAPS_REVIEW_URL = GOOGLE_REVIEWS_WRITE_URL;
 
