@@ -21,9 +21,11 @@ export interface GoogleReviewsSummary {
 export const GOOGLE_MAPS_PLACE_URL =
   "https://www.google.com/maps/place/Ciyeng+Mamim+(Cireng+isi+PREMIUM)/@-7.022391,107.5423507,17z/data=!4m8!3m7!1s0x2e68ed0069a4a477:0xfe01ca13fc50ae11!8m2!3d-7.022391!4d107.5423507!9m1!1b1!16s%2Fg%2F11zgcxh3wm?entry=ttu&g_ep=EgoyMDI2MDkwMi4wIKXMDSoASAFQAw%3D%3D";
 
-// Deep Link Google Reviews: Membuka langsung popup form bintang & penulisan ulasan Google (pola #lrd=0x2e68ed0069a4a477:0xfe01ca13fc50ae11,3)
+// Deep Link Google Reviews: Membuka langsung popup form bintang & penulisan ulasan Google
+// Menggunakan kgmid=%2Fg%2F11zgcxh3wm dan nfpr=1 agar Google Search TIDAK meng-autocorrect kata "Ciyeng" menjadi "Cireng Mama"
+// dan langsung memicu dialog Tulis Ulasan Google (#lrd=0x2e68ed0069a4a477:0xfe01ca13fc50ae11,3)
 export const GOOGLE_REVIEWS_WRITE_URL =
-  "https://www.google.com/search?hl=id-ID&gl=id&q=Ciyeng+Mamim+%28Cireng+isi+PREMIUM%29,+Soreang,+Kabupaten+Bandung,+Jawa+Barat&ludocid=18303132547796741649#lrd=0x2e68ed0069a4a477:0xfe01ca13fc50ae11,3";
+  "https://www.google.com/search?hl=id-ID&gl=id&q=Ciyeng+Mamim+(Cireng+isi+PREMIUM)&kgmid=%2Fg%2F11zgcxh3wm&ludocid=18303132547796741649&nfpr=1#lrd=0x2e68ed0069a4a477:0xfe01ca13fc50ae11,3";
 
 export const GOOGLE_MAPS_REVIEW_URL = GOOGLE_REVIEWS_WRITE_URL;
 
