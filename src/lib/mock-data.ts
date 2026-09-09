@@ -127,7 +127,7 @@ export const INITIAL_PRODUCTS: ProductItem[] = [
     slug: "cireng-mentah-sapi-teriyaki-10-pcs",
     description: "Cireng mentahan siap goreng isi daging sapi pedas manis dengan rempah pilihan (10 pcs)",
     price: 55000,
-    imageUrl: "/images/cireng-sapi-teriyaki.webp",
+    imageUrl: "/images/cireng-mentah.webp",
     isAvailable: true,
     sortOrder: 6,
     variants: [
@@ -141,7 +141,7 @@ export const INITIAL_PRODUCTS: ProductItem[] = [
     slug: "cireng-mentah-paru-rica-10-pcs",
     description: "Cireng mentahan siap goreng isi daging paru pedas nampol aroma daun jeruk (10 pcs)",
     price: 40000,
-    imageUrl: "/images/cireng-paru-rica.webp",
+    imageUrl: "/images/cireng-mentah.webp",
     isAvailable: true,
     sortOrder: 7,
     variants: [
@@ -155,7 +155,7 @@ export const INITIAL_PRODUCTS: ProductItem[] = [
     slug: "cireng-mentah-isi-keju-10-pcs",
     description: "Cireng mentahan siap goreng isi keju cheddar melimpah gurih nikmat (10 pcs)",
     price: 40000,
-    imageUrl: "/images/cireng-keju.webp",
+    imageUrl: "/images/cireng-mentah.webp",
     isAvailable: true,
     sortOrder: 8,
     variants: [
@@ -169,7 +169,7 @@ export const INITIAL_PRODUCTS: ProductItem[] = [
     slug: "cireng-mentah-ayam-rica-10-pcs",
     description: "Cireng mentahan siap goreng isi ayam suwir pedas gurih bumbu rempah spesial (10 pcs)",
     price: 40000,
-    imageUrl: "/images/cireng-ayam-rica.webp",
+    imageUrl: "/images/cireng-mentah.webp",
     isAvailable: true,
     sortOrder: 9,
     variants: [
@@ -183,7 +183,7 @@ export const INITIAL_PRODUCTS: ProductItem[] = [
     slug: "cireng-mentah-mix-rasa-10-pcs",
     description: "Cireng mentahan siap goreng mix aneka varian rasa favorit pilihan keluarga (10 pcs)",
     price: 40000,
-    imageUrl: "/images/paket-cireng.webp",
+    imageUrl: "/images/cireng-mentah.webp",
     isAvailable: true,
     sortOrder: 10,
     variants: [
@@ -197,7 +197,7 @@ export const INITIAL_PRODUCTS: ProductItem[] = [
     slug: "cireng-mentah-pizza-10-pcs",
     description: "Cireng mentahan siap goreng isi potongan sosis dengan sauce bolognese khas resto (10 pcs)",
     price: 40000,
-    imageUrl: "/images/cireng-pizza.webp",
+    imageUrl: "/images/cireng-mentah.webp",
     isAvailable: true,
     sortOrder: 11,
     variants: [

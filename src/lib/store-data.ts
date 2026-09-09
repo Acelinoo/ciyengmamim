@@ -47,10 +47,13 @@ if (!globalStoreState.ciyengStoreData) {
     addons: JSON.parse(JSON.stringify(INITIAL_ADDONS)),
   };
 } else {
-  // Pastikan produk baru di INITIAL_PRODUCTS (seperti cireng mentahan) selalu tersinkronisasi
+  // Pastikan produk baru & update imageUrl di INITIAL_PRODUCTS selalu tersinkronisasi
   for (const initProd of INITIAL_PRODUCTS) {
-    if (!globalStoreState.ciyengStoreData.products.some((p) => p.id === initProd.id)) {
+    const existing = globalStoreState.ciyengStoreData.products.find((p) => p.id === initProd.id);
+    if (!existing) {
       globalStoreState.ciyengStoreData.products.push(JSON.parse(JSON.stringify(initProd)));
+    } else if (initProd.id.startsWith("prod_mentah_")) {
+      existing.imageUrl = initProd.imageUrl;
     }
   }
 }
