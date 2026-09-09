@@ -118,6 +118,93 @@ export const INITIAL_PRODUCTS: ProductItem[] = [
       { id: "var_10", name: "Pedas", price: 500 },
     ],
   },
+  // =========================================================================
+  // CIRENG VERSI MENTAHAN (SIAP GORENG ISI 10 PCS)
+  // =========================================================================
+  {
+    id: "prod_mentah_1",
+    name: "Cireng Mentah - Sapi Teriyaki (10 pcs)",
+    slug: "cireng-mentah-sapi-teriyaki-10-pcs",
+    description: "Cireng mentahan siap goreng isi daging sapi pedas manis dengan rempah pilihan (10 pcs)",
+    price: 55000,
+    imageUrl: "/images/cireng-sapi-teriyaki.webp",
+    isAvailable: true,
+    sortOrder: 6,
+    variants: [
+      { id: "var_m_1", name: "Original", price: 0 },
+      { id: "var_m_2", name: "Pedas", price: 0 },
+    ],
+  },
+  {
+    id: "prod_mentah_2",
+    name: "Cireng Mentah - Paru Rica (10 pcs)",
+    slug: "cireng-mentah-paru-rica-10-pcs",
+    description: "Cireng mentahan siap goreng isi daging paru pedas nampol aroma daun jeruk (10 pcs)",
+    price: 40000,
+    imageUrl: "/images/cireng-paru-rica.webp",
+    isAvailable: true,
+    sortOrder: 7,
+    variants: [
+      { id: "var_m_3", name: "Pedas Nampol", price: 0 },
+      { id: "var_m_4", name: "Extra Daun Jeruk", price: 0 },
+    ],
+  },
+  {
+    id: "prod_mentah_3",
+    name: "Cireng Mentah - Isi Keju (10 pcs)",
+    slug: "cireng-mentah-isi-keju-10-pcs",
+    description: "Cireng mentahan siap goreng isi keju cheddar melimpah gurih nikmat (10 pcs)",
+    price: 40000,
+    imageUrl: "/images/cireng-keju.webp",
+    isAvailable: true,
+    sortOrder: 8,
+    variants: [
+      { id: "var_m_5", name: "Original Gurih", price: 0 },
+      { id: "var_m_6", name: "Pedas Keju", price: 0 },
+    ],
+  },
+  {
+    id: "prod_mentah_4",
+    name: "Cireng Mentah - Ayam Rica (10 pcs)",
+    slug: "cireng-mentah-ayam-rica-10-pcs",
+    description: "Cireng mentahan siap goreng isi ayam suwir pedas gurih bumbu rempah spesial (10 pcs)",
+    price: 40000,
+    imageUrl: "/images/cireng-ayam-rica.webp",
+    isAvailable: true,
+    sortOrder: 9,
+    variants: [
+      { id: "var_m_7", name: "Pedas Sedang", price: 0 },
+      { id: "var_m_8", name: "Extra Pedas", price: 0 },
+    ],
+  },
+  {
+    id: "prod_mentah_5",
+    name: "Cireng Mentah - Mix Rasa (10 pcs)",
+    slug: "cireng-mentah-mix-rasa-10-pcs",
+    description: "Cireng mentahan siap goreng mix aneka varian rasa favorit pilihan keluarga (10 pcs)",
+    price: 40000,
+    imageUrl: "/images/paket-cireng.webp",
+    isAvailable: true,
+    sortOrder: 10,
+    variants: [
+      { id: "var_m_9", name: "Mix Komplit", price: 0 },
+      { id: "var_m_10", name: "Mix Request di Catatan", price: 0 },
+    ],
+  },
+  {
+    id: "prod_mentah_6",
+    name: "Cireng Mentah - Pizza (10 pcs)",
+    slug: "cireng-mentah-pizza-10-pcs",
+    description: "Cireng mentahan siap goreng isi potongan sosis dengan sauce bolognese khas resto (10 pcs)",
+    price: 40000,
+    imageUrl: "/images/cireng-pizza.webp",
+    isAvailable: true,
+    sortOrder: 11,
+    variants: [
+      { id: "var_m_11", name: "Original Bolognese", price: 0 },
+      { id: "var_m_12", name: "Extra Keju", price: 0 },
+    ],
+  },
 ];
 
 export const INITIAL_PACKAGES: PackageItem[] = [

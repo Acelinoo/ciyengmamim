@@ -46,6 +46,13 @@ if (!globalStoreState.ciyengStoreData) {
     packages: JSON.parse(JSON.stringify(INITIAL_PACKAGES)),
     addons: JSON.parse(JSON.stringify(INITIAL_ADDONS)),
   };
+} else {
+  // Pastikan produk baru di INITIAL_PRODUCTS (seperti cireng mentahan) selalu tersinkronisasi
+  for (const initProd of INITIAL_PRODUCTS) {
+    if (!globalStoreState.ciyengStoreData.products.some((p) => p.id === initProd.id)) {
+      globalStoreState.ciyengStoreData.products.push(JSON.parse(JSON.stringify(initProd)));
+    }
+  }
 }
 
 export const dynamicStore = globalStoreState.ciyengStoreData;
@@ -77,14 +84,21 @@ export async function getPublicStoreData(): Promise<PublicStoreData> {
         .catch(() => []),
     ]);
 
+    const activeProducts =
+      productsDb && productsDb.length > 0
+        ? [
+            ...(productsDb as unknown as ProductItem[]),
+            ...dynamicStore.products.filter(
+              (dp) => !(productsDb as unknown as ProductItem[]).some((dbP) => dbP.id === dp.id)
+            ),
+          ]
+        : dynamicStore.products;
+
     return {
       store: storeDb || dynamicStore.store,
       operational: opDb || dynamicStore.operational,
       payment: payDb || dynamicStore.payment,
-      products:
-        productsDb && productsDb.length > 0
-          ? (productsDb as unknown as ProductItem[])
-          : dynamicStore.products,
+      products: activeProducts,
       packages:
         packagesDb && packagesDb.length > 0
           ? (packagesDb as unknown as PackageItem[])

@@ -54,9 +54,9 @@ export function StoreClientView({
     type: "PRODUCT" | "PACKAGE";
   } | null>(null);
 
-  const [activeCategory, setActiveCategory] = useState<"ALL" | "PACKAGES" | "PRODUCTS" | "ADDONS">(
-    "ALL"
-  );
+  const [activeCategory, setActiveCategory] = useState<
+    "ALL" | "PACKAGES" | "PRODUCTS" | "MENTAH" | "ADDONS"
+  >("ALL");
 
   // GSAP Animation Refs
   const paketSectionRef = useRef<HTMLElement>(null);
@@ -308,7 +308,7 @@ export function StoreClientView({
             Menu Cireng
           </h2>
           <p className="text-xs sm:text-sm text-[#2C3E5A] mt-2 font-medium">
-            Pilihan menu: Ayam Rica, Sapi Teriyaki, Paru Rica, Pizza, dan Keju.
+            Tersedia menu siap santap & versi mentahan siap goreng isi 10 pcs per pack.
           </p>
         </div>
 
@@ -318,11 +318,17 @@ export function StoreClientView({
             { id: "ALL", label: "Semua Menu" },
             { id: "PACKAGES", label: "Paket" },
             { id: "PRODUCTS", label: "Menu Cireng" },
+            { id: "MENTAH", label: "🥟 Cireng Mentah (10 Pcs)" },
             { id: "ADDONS", label: "Saus" },
           ].map((tab) => (
             <button
               key={tab.id}
-              onClick={() => setActiveCategory(tab.id as typeof activeCategory)}
+              onClick={() => {
+                setActiveCategory(tab.id as typeof activeCategory);
+                if (tab.id === "ADDONS") {
+                  document.getElementById("sauce")?.scrollIntoView({ behavior: "smooth" });
+                }
+              }}
               aria-label={`Filter kategori ${tab.label}`}
               className={`px-5 py-2.5 min-h-[44px] rounded-full font-bold text-xs sm:text-sm whitespace-nowrap transition-all ${
                 activeCategory === tab.id
@@ -337,15 +343,31 @@ export function StoreClientView({
 
         {/* Products Grid (2 columns on mobile) */}
         <div ref={menuGridRef} className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
+          {/* Cireng Matang / Siap Santap */}
           {(activeCategory === "ALL" || activeCategory === "PRODUCTS") &&
-            products.map((product) => (
-              <ProductCard
-                key={product.id}
-                product={product}
-                onSelect={(p) => setCustomizerItem({ item: p, type: "PRODUCT" })}
-              />
-            ))}
+            products
+              .filter((product) => !product.name.toLowerCase().includes("mentah"))
+              .map((product) => (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  onSelect={(p) => setCustomizerItem({ item: p, type: "PRODUCT" })}
+                />
+              ))}
 
+          {/* Cireng Mentah Isi 10 Pcs Siap Goreng */}
+          {(activeCategory === "ALL" || activeCategory === "MENTAH") &&
+            products
+              .filter((product) => product.name.toLowerCase().includes("mentah"))
+              .map((product) => (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  onSelect={(p) => setCustomizerItem({ item: p, type: "PRODUCT" })}
+                />
+              ))}
+
+          {/* Paket Cireng */}
           {(activeCategory === "ALL" || activeCategory === "PACKAGES") &&
             packages.map((pkg) => (
               <PackageCard

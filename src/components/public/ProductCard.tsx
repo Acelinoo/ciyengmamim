@@ -11,6 +11,8 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ product, onSelect }: ProductCardProps) {
+  const isMentah = product.name.toLowerCase().includes("mentah");
+
   return (
     <div className="food-card bg-white border border-[#E2DDD2] hover:border-[#16253D] p-3 sm:p-5 flex flex-col justify-between group transition-all rounded-2xl sm:rounded-3xl">
       <div>
@@ -23,6 +25,16 @@ export function ProductCard({ product, onSelect }: ProductCardProps) {
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 380px"
             className="object-cover group-hover:scale-105 transition-transform duration-300"
           />
+
+          {/* Mentah (10 Pcs) Badge */}
+          {isMentah && (
+            <div className="absolute top-2 left-2 z-10">
+              <span className="px-2 py-0.5 sm:px-2.5 sm:py-1 bg-[#16253D]/95 backdrop-blur-xs text-white font-extrabold text-[9px] sm:text-[10px] rounded-full shadow-md border border-white/20 flex items-center gap-1">
+                🥟 Mentah 10 Pcs
+              </span>
+            </div>
+          )}
+
           {!product.isAvailable && (
             <div className="absolute inset-0 bg-[#16253D]/75 backdrop-blur-xs flex items-center justify-center p-1 text-center">
               <span className="px-2.5 py-1 bg-[#B91C1C] text-white font-black text-[10px] sm:text-xs uppercase tracking-wider rounded-full shadow-md">
@@ -45,7 +57,7 @@ export function ProductCard({ product, onSelect }: ProductCardProps) {
       <div className="pt-2 sm:pt-3 border-t border-[#EFECE3] flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-1.5 sm:gap-2">
         <div>
           <span className="text-[9px] sm:text-[10px] uppercase font-extrabold text-[#5C4028] block tracking-wider">
-            Harga Satuan
+            {isMentah ? "Isi 10 Pcs (Pack)" : "Harga Satuan"}
           </span>
           <span className="text-sm sm:text-lg font-black text-[#16253D]">
             {formatRupiah(product.price)}
