@@ -17,6 +17,7 @@ import { HeroSection } from "./HeroSection";
 import { ProductCard } from "./ProductCard";
 import { PackageCard } from "./PackageCard";
 import { StoreFooter } from "./StoreFooter";
+import { GoogleReviews } from "./GoogleReviews";
 import { formatRupiah } from "@/lib/whatsapp";
 
 import { ProductCustomizerModal } from "./ProductCustomizerModal";
@@ -249,7 +250,10 @@ export function StoreClientView({
         </div>
       </section>
 
-      {/* 7. Floating Mobile Cart Bottom Bar */}
+      {/* 7. Google Customer Reviews Section */}
+      <GoogleReviews />
+
+      {/* 8. Floating Mobile Cart Bottom Bar */}
       {totalCartCount > 0 && (
         <div className="fixed bottom-4 left-4 right-4 z-40 md:hidden animate-slide-up">
           <button

@@ -16,7 +16,8 @@ export const INITIAL_STORE_SETTINGS: StoreSettingsType = {
   instagramHandle: "ciyengmamim",
   instagramUrl: "https://instagram.com/ciyengmamim",
   address: "Jl Raya gading tutuka GC Kuliner pujasera, Soreang",
-  mapsUrl: "https://maps.google.com/?q=GC+Kuliner+pujasera+Soreang",
+  mapsUrl:
+    "https://www.google.com/maps/place/Ciyeng+Mamim+(Cireng+isi+PREMIUM)/@-7.022391,107.5423507,17z/data=!4m8!3m7!1s0x2e68ed0069a4a477:0xfe01ca13fc50ae11!8m2!3d-7.022391!4d107.5423507!9m1!1b1!16s%2Fg%2F11zgcxh3wm?entry=ttu&g_ep=EgoyMDI2MDkwMi4wIKXMDSoASAFQAw%3D%3D",
   mapsEmbedUrl: null,
 };
 

@@ -64,6 +64,9 @@ export function HeaderNav({
           <a href="#sauce" className="hover:text-[#16253D] transition-colors py-2">
             Aneka Saus
           </a>
+          <a href="#ulasan" className="hover:text-[#16253D] transition-colors py-2">
+            Ulasan
+          </a>
           <a href="#lokasi" className="hover:text-[#16253D] transition-colors py-2">
             Lokasi Soreang
           </a>
